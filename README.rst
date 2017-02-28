@@ -9,3 +9,6 @@
 
 .. image:: https://sonarqube.com/api/badges/gate?key=github-com-cemsbr-browscap
    :target: https://sonarqube.com/dashboard?id=github-com-cemsbr-browscap
+
+.. image:: https://scrutinizer-ci.com/g/cemsbr/browscap/badges/quality-score.png?b=master
+   :target: https://scrutinizer-ci.com/g/cemsbr/browscap/
