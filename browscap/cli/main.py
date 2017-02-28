@@ -17,27 +17,34 @@ class Main:
     def __init__(self, cache_folder):
         self.csv_file = Path(cache_folder).expanduser() / self.FILE
 
-    @classmethod
-    def fetch(cls, cache_folder):
+    @staticmethod
+    def _get_obj_with_folder(cache_folder):
         obj = Main(cache_folder)
         obj.assert_folder()
+        return obj
+
+    @classmethod
+    def fetch(cls, cache_folder):
+        obj = cls._get_obj_with_folder(cache_folder)
         obj.update_file()
 
     @classmethod
     def convert(cls, cache_folder):
-        obj = Main(cache_folder)
-        obj.assert_folder()
+        obj = cls._get_obj_with_folder(cache_folder)
         obj.create_cache()
 
     def create_cache(self):
         if not self.csv_file.exists():
             log.error('browscap.csv not found. Did you run fetch?')
-            return
+        else:
+            self._parse()
+
+    def _parse(self):
         with self.csv_file.open() as f:
             next(f)  # skip browscap version info
             next(f)
             reader = csv.reader(f)
-            fieldnames = next(reader)
+            next(reader)  # field names
             row = next(reader)
             row = [True if c == 'true' else c for c in row]
             row = [False if c == 'false' else c for c in row]
@@ -64,12 +71,7 @@ class Main:
         return None
 
     def _get_remote_mod_time(self, local_mod_time=None):
-        headers = {}
-        if local_mod_time:
-            if_mod_since = local_mod_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
-            headers['If-Modified-Since'] = if_mod_since
-            log.info('Local file date:  %s', if_mod_since)
-        req = urllib.request.Request(self.URL, headers=headers, method='HEAD')
+        req = self._get_request(local_mod_time)
         with urllib.request.urlopen(req) as res:
             remote_time = res.info()['Last-Modified']
             log.info('Remote file date: %s', remote_time)
@@ -79,6 +81,14 @@ class Main:
                 log.warning('Got 304, no need for the workaround anymore.')
             res_headers = res.info()
             return parsedate_to_datetime(res_headers['Last-Modified'])
+
+    def _get_request(self, local_mod_time=None):
+        headers = {}
+        if local_mod_time:
+            if_mod_since = local_mod_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
+            headers['If-Modified-Since'] = if_mod_since
+            log.info('Local file date:  %s', if_mod_since)
+        return urllib.request.Request(self.URL, headers=headers, method='HEAD')
 
     def download(self, remote_time):
         log.info('Downloading browscap.csv...')
