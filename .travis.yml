@@ -13,10 +13,11 @@ addons:
 # command to install dependencies
 install:
   - pip install -e .[test]
-  - pip install coveralls
+  - pip install coveralls codecov
 # command to run tests
 script:
   - coverage run --source=browscap setup.py test
   - pylama setup.py test browscap
 after_success:
   - coveralls
+  - codecov

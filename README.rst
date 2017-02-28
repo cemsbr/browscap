@@ -10,6 +10,10 @@
    :target: https://codebeat.co/projects/github-com-cemsbr-browscap
    :alt: Codebeat badge
 
+.. image:: https://codecov.io/gh/cemsbr/browscap/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/cemsbr/browscap
+   :alt: Codecov badge
+
 .. image:: https://sonarqube.com/api/badges/gate?key=github-com-cemsbr-browscap
    :target: https://sonarqube.com/dashboard?id=github-com-cemsbr-browscap
    :alt: Sonarqube badge
