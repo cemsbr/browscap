@@ -1,4 +1,11 @@
 *.egg-info/
 .coverage
 __pycache__/
-htmlcov
+htmlcov/
+
+# SonarQube files
+.sonar/
+coverage.xml
+nosetests.xml
+pylint-report.txt
+sonar-project.properties
