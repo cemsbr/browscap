@@ -2,6 +2,10 @@
    :target: https://travis-ci.org/cemsbr/browscap
    :alt: Travis badge
 
+.. image:: https://circleci.com/gh/cemsbr/browscap.svg?style=svg
+   :target: https://circleci.com/gh/cemsbr/browscap
+   :alt: CircleCI badge
+
 .. image:: https://coveralls.io/repos/github/cemsbr/browscap/badge.svg?branch=master
    :target: https://coveralls.io/github/cemsbr/browscap?branch=master
    :alt: Coveralls badge
