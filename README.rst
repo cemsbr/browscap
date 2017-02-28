@@ -25,3 +25,7 @@
 .. image:: https://codeclimate.com/github/cemsbr/browscap/badges/gpa.svg
    :target: https://codeclimate.com/github/cemsbr/browscap
    :alt: Code Climate badge
+
+.. image:: https://api.codacy.com/project/badge/grade/3a8cf06a9db94d0ab3d55e0357bc8f9d
+   :target: https://www.codacy.com/app/cems/browscap
+   :alt: Codacy badge
