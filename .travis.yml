@@ -7,6 +7,9 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+addons:
+  code_climate:
+    repo_token: 73c97f734c8b9ab821ef2db835c2be0e85ba9de591640a711e14d695ed3a03e5
 # command to install dependencies
 install:
   - pip install -e .[test]
