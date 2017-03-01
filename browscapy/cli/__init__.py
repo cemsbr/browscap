@@ -15,13 +15,12 @@ Options:
 """
 import logging
 from docopt import docopt
-from .main import Main
-
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+from browscapy.cli.main import Main
 
 
 def entry_point():
     """Main function for CLI."""
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
     args = docopt(__doc__)
     if args['fetch']:
         Main.fetch(args['--cache'])
