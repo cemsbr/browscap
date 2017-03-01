@@ -59,8 +59,9 @@ class Main:
         if self.csv_file.exists():
             tstamp = self.csv_file.stat().st_mtime
             dtime = datetime.fromtimestamp(tstamp, timezone.utc)
-            time_str = dtime.strftime('%a, %d %b %Y %H:%M:%S %Z')
-            log.info('Local file date:  %s', time_str)
+            if log.isEnabledFor(logging.INFO):
+                string = dtime.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                log.info('Local file:  %s', string)
             return dtime
 
     def _get_remote_mod_time(self):
@@ -68,9 +69,8 @@ class Main:
         req = urllib.request.Request(self.URL, method='HEAD')
         with urllib.request.urlopen(req) as res:
             remote_time = res.info()['Last-Modified']
+            log.info('Remote file: %s', remote_time)
             dtime = parsedate_to_datetime(remote_time)
-            time_str = dtime.strftime('%a, %d %b %Y %H:%M:%S %Z')
-            log.info('Remote file date: %s', time_str)
             return dtime
 
     def download(self, last_modified):
