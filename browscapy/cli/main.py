@@ -7,7 +7,7 @@ from email.utils import parsedate_to_datetime
 from os import utime
 from pathlib import Path
 
-log = logging.getLogger('browscap')
+log = logging.getLogger('browscapy')
 
 
 class Main:

@@ -1,6 +1,6 @@
 import unittest
 
-from browscap import DB, Parser
+from browscapy import DB, Parser
 
 
 class TestForest(unittest.TestCase):

@@ -16,8 +16,8 @@ install:
   - pip install coveralls codecov
 # command to run tests
 script:
-  - coverage run --source=browscap setup.py test
-  - pylama setup.py test browscap
+  - coverage run --source=browscapy setup.py test
+  - pylama setup.py tests browscapy
 after_success:
   - coveralls
   - codecov

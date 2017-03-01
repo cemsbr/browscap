@@ -18,7 +18,7 @@ with codecs_open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='browscap',
+    name='browscapy',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -29,7 +29,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/cemsbr/browscap',
+    url='https://github.com/cemsbr/browscapy',
 
     # Author details
     author='Carlos Eduardo Moreira dos Santos',
@@ -103,7 +103,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'browscap=browscap.cli:entry_point',
+            'browscapy=browscapy.cli:entry_point',
         ],
     },
 

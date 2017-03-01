@@ -1,9 +1,9 @@
 """Download and cache data from browscap.org.
 
 Usage:
-  browscap -h | --help
-  browscap fetch   [--cache=DIR]
-  browscap convert [--cache=DIR]
+  browscapy -h | --help
+  browscapy fetch   [--cache=DIR]
+  browscapy convert [--cache=DIR]
 
 Commands:
   fetch    Download browscap.csv file.
