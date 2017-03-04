@@ -16,9 +16,9 @@ class Main:
     def __init__(self, cache_folder):
         self.csv_file = Path(cache_folder).expanduser() / self.FILE
 
-    @staticmethod
-    def _get_obj_with_folder(cache_folder):
-        obj = Main(cache_folder)
+    @classmethod
+    def _get_obj_with_folder(cls, cache_folder):
+        obj = cls(cache_folder)
         obj.assert_folder()
         return obj
 
@@ -49,11 +49,14 @@ class Main:
 
     def update_file(self):
         local_time = self._get_local_mod_time()
-        remote_time = self._get_remote_mod_time()
-        if not local_time or local_time < remote_time:
-            self.download(remote_time)
+        if not local_time:
+            self.download()
         else:
-            log.info('No newer remote file available.')
+            remote_time = self._get_remote_mod_time()
+            if local_time < remote_time:
+                self.download(remote_time)
+            else:
+                log.info('No newer remote file available.')
 
     def _get_local_mod_time(self):
         if self.csv_file.exists():
@@ -70,12 +73,13 @@ class Main:
         with urllib.request.urlopen(req) as res:
             remote_time = res.info()['Last-Modified']
             log.info('Remote file: %s', remote_time)
-            dtime = parsedate_to_datetime(remote_time)
-            return dtime
+            return parsedate_to_datetime(remote_time)
 
-    def download(self, last_modified):
+    def download(self, last_modified=None):
         log.info('Downloading browscap.csv...')
-        urllib.request.urlretrieve(self.URL, str(self.csv_file))
+        headers = urllib.request.urlretrieve(self.URL, str(self.csv_file))[1]
+        if last_modified is None:
+            last_modified = parsedate_to_datetime(headers['Last-Modified'])
         log.info('Downloaded %s', self.csv_file)
         tstamp = last_modified.timestamp()
         utime(str(self.csv_file), (tstamp, tstamp))
