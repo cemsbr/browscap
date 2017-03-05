@@ -1,0 +1,9 @@
+[Default]
+bears = BanditBear,PycodestyleBear,PyCommentedCodeBear,PyDocStyleBear,PyFlakesBear,PyLintBear,PyromaBear,PySafetyBear,PyUnusedCodeBear,RadonBear,RSTcheckBear,VultureBear
+# The bears below have problems
+# bears = PyImportSortBear,SpellCheckBear
+files = browscapy/*,tests/*,setup.py
+language=python
+pydocstyle_ignore=D104,D101,D213,D102
+pylint_disable=C0111,C0103
+# C0103: variable names with 3 or more charcters

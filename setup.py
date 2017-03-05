@@ -107,5 +107,6 @@ setup(
         ],
     },
 
-    test_suite='tests'
+    test_suite='tests',
+    zip_safe=True
 )
