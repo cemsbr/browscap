@@ -4,6 +4,6 @@ bears = BanditBear,PycodestyleBear,PyCommentedCodeBear,PyDocStyleBear,PyFlakesBe
 # bears = PyImportSortBear,SpellCheckBear
 files = browscapy/*,tests/*,setup.py
 language=python
-pydocstyle_ignore=D104,D101,D213,D102
+pydocstyle_ignore=D104,D100,D101,D213,D102
 pylint_disable=C0111,C0103
 # C0103: variable names with 3 or more charcters
