@@ -93,8 +93,7 @@ setup(
         ],
         'test': [
             'coverage',
-            'pylama_pylint',
-            'radon'
+            'yala'
         ],
     },
 

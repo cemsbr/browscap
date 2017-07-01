@@ -9,8 +9,14 @@ class Pattern:
     """
 
     def __init__(self, bcap_pat):
-        """Store length and compiled regex."""
+        """Store length and compiled regex.
+
+        Args:
+            bcap_nat (str): Browscap pattern.
+        """
+        #: int: Browscap pattern length. Longer must be prefered.
         self.length = self._get_length(bcap_pat)
+        #: compiled regex: compiled Python regex.
         self.compiled = self._compile(bcap_pat)
 
     @classmethod
