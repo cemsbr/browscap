@@ -1,4 +1,3 @@
-TEST_ARGS=-m unittest discover
 SRC=browscapy
 
 help:
@@ -12,7 +11,7 @@ env:
 
 .PHONY: tests
 tests: env
-	@python ${TEST_ARGS}
+	@python setup.py test
 
 auto-tests:
 	while [ True ]; do \
@@ -26,7 +25,7 @@ auto-tests:
 	done
 
 coverage:
-	@coverage run --source=${SRC} ${TEST_ARGS}
+	@coverage run setup.py test
 	@coverage report
 
 lint:
