@@ -19,7 +19,7 @@ from browscapy.cli.main import Main
 
 
 def entry_point():
-    """Main function for CLI."""
+    """Run from CLI."""
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     args = docopt(__doc__)
     if args['fetch']:
