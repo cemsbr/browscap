@@ -2,9 +2,10 @@ SRC=browscapy
 
 help:
 	@echo 'Usage:'
-	@echo '  make tests:    Run tests.'
-	@echo '  make coverage: Run tests and display test coverage.'
-	@echo '  make lint:     Run several linters.'
+	@echo '  make tests:       Run tests.'
+	@echo '  make auto-tests:  Run tests when files are modified and display notification.'
+	@echo '  make coverage:    Run tests and display test coverage.'
+	@echo '  make lint:        Run several linters.'
 
 env:
 	@export PYTHONPATH="$$PWD:$$PYTHONPATH"
@@ -16,12 +17,12 @@ tests: env
 auto-tests:
 	while [ True ]; do \
 		if make coverage; then \
-		    notify-send -t 3 -u low 'Tests Passed  :)'; \
+			notify-send -t 3 -u low 'Tests Passed  :)'; \
 		else \
 			notify-send -t 3 -u critical 'Tests Failed  :('; \
 		fi; \
 		sleep 1; \
-		inotifywait -re modify ${SRC}/ tests/; \
+		inotifywait -re modify --format="%f" --exclude=".*\.swp" ${SRC}/ tests/; \
 	done
 
 coverage:
@@ -29,9 +30,9 @@ coverage:
 	@coverage report
 
 lint:
-	@echo Pylama
+	@echo yala
 	@echo ======
-	pylama ${SRC} tests
+	yala ${SRC} tests
 	@echo
 	@echo RSTcheck
 	@echo ========
