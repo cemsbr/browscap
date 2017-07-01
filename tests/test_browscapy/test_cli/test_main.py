@@ -62,6 +62,18 @@ class TestMain(TestCase):
         main.update_file()
         download.assert_called()
 
+    @patch('browscapy.cli.main.log')
+    @patch('browscapy.cli.main.Path')
+    def test_error_file_not_found(self, path, log):
+        """When csv_file is not found, should log as error."""
+        csv_file = self.get_csv_file(path)
+        csv_file.exists.return_value = False
+
+        main = Main(csv_file)
+        log.error.assert_not_called()
+        main.create_cache()
+        log.error.assert_called()
+
     @staticmethod
     def get_csv_file(path):
         return path.return_value.expanduser.return_value.__truediv__\
