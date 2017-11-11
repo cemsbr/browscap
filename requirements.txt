@@ -1,2 +1,0 @@
-# To pickle compiled regex
-regex

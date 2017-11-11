@@ -1,7 +1,0 @@
-coala-bears
-coverage
-docopt
-pylama-pylint
-
-# SonarQube
-nose
