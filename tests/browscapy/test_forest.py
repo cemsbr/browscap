@@ -31,11 +31,11 @@ class TestForest(unittest.TestCase):
     @staticmethod
     def _parse_ua(*uas):
         parser = Parser()
-        for ua in uas:
-            parser.parse((ua, 'data_col0'))
+        for user_agent in uas:
+            parser.parse((user_agent, 'data_col0'))
         return parser.forest
 
     @staticmethod
-    def _count_trees(forest, ua):
-        trees = forest.get_trees(ua)
+    def _count_trees(forest, user_agent):
+        trees = forest.get_trees(user_agent)
         return sum(1 for _ in trees)

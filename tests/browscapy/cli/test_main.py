@@ -1,3 +1,4 @@
+"""Test main module."""
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from unittest import TestCase
@@ -7,6 +8,7 @@ from browscapy.cli.main import Main
 
 
 class TestMain(TestCase):
+    """Test Main class."""
 
     @staticmethod
     @patch('urllib.request')
@@ -76,11 +78,13 @@ class TestMain(TestCase):
 
     @staticmethod
     def get_csv_file(path):
+        """Mock browscap CSV file."""
         return path.return_value.expanduser.return_value.__truediv__\
             .return_value
 
     @classmethod
     def get_cache_folder(cls, path, exists):
+        """Mock the cache (browscap CSV) folder."""
         parent = cls.get_csv_file(path).parent
         parent.exists.return_value = exists
         return parent

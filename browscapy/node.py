@@ -11,6 +11,8 @@ class Node:
             pattern (Pattern): Browscap pattern.
         """
         self._pattern = pattern
+        #: list of Node: node's children. If empty, it's a leaf.
+        self.children = []
 
     @property
     def length(self):
