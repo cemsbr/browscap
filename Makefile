@@ -29,27 +29,33 @@ coverage:
 	@coverage run setup.py test
 	@coverage report
 
+mypy:
+	mypy --disallow-any-unimported --disallow-any-expr --disallow-any-decorated --disallow-any-explicit --disallow-any-generics --disallow-subclassing-any --warn-return-any browscapy tests
+
 lint:
-	@echo yala
-	@echo ======
+	@echo mypy
+	@echo ====
+	mypy --disallow-any-unimported --disallow-any-expr --disallow-any-decorated --disallow-any-explicit --disallow-any-generics --disallow-subclassing-any --warn-return-any ${SRC} tests
+	@echo "\nyala"
+	@echo ====
 	yala ${SRC} tests
-	@echo
-	@echo RSTcheck
-	@echo ========
-	find . -type f -name "*.rst" | xargs rstcheck
-	@echo
-	@echo 'Vulture (unused code)'
-	@echo '====================='
-	vulture ${SRC}
-	@echo
-	@echo 'Bandit (vulnerabilities)'
-	@echo '========================'
-	bandit -r ${SRC}
-	@echo
-	@echo Safety
-	@echo ======
-	safety check
-	@echo
-	@echo 'Eradicate (commented-out code)'
-	@echo '=============================='
-	eradicate -r ${SRC} tests
+#	@echo
+#	@echo RSTcheck
+#	@echo ========
+#	find . -type f -name "*.rst" | xargs rstcheck
+#	@echo
+#	@echo 'Vulture (unused code)'
+#	@echo '====================='
+#	vulture ${SRC}
+#	@echo
+#	@echo 'Bandit (vulnerabilities)'
+#	@echo '========================'
+#	bandit -r ${SRC}
+#	@echo
+#	@echo Safety
+#	@echo ======
+#	safety check
+#	@echo
+#	@echo 'Eradicate (commented-out code)'
+#	@echo '=============================='
+#	eradicate -r ${SRC} tests
