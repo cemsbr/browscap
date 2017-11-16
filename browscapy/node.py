@@ -32,7 +32,8 @@ class Node:
         Return the common prefix and a tuple with the suffixes.
         """
         prefix_len = self._get_common_prefix_length(other_pattern)
-        self._validate_common_prefix(prefix_len)
+        if prefix_len == len(self.pattern):
+            raise ValueError("Can't add nodes with the same pattern.")
 
         parent = self.pattern[:prefix_len]
         child1 = self.pattern[prefix_len:]
@@ -48,9 +49,3 @@ class Node:
                 break
             length += 1
         return length
-
-    def _validate_common_prefix(self, prefix_len: int) -> None:
-        if prefix_len == 0:
-            raise ValueError("Can't add nodes without a common prefix.")
-        elif prefix_len == len(self.pattern):
-            raise ValueError("Can't add nodes with the same pattern.")
