@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/browscapy
+    docker:
+      - image: circleci/python:3.6.2-stretch
+    steps:
+      - run:
+          name: Cloning Repository
+          command: cd .. && git clone --depth 1 git://github.com/cemsbr/browscapy.git
+      - restore_cache:
+          keys:
+            - v1-installed-{{ checksum "requirements/dev.txt" }}
+            - v1-packages
+      - run:
+          name: Installing Dependencies
+          command: pip install --user -r requirements/dev.txt
+      - save_cache:
+          key: v1-installed-{{ checksum "requirements/dev.txt" }}
+          paths:
+            - ~/.local
+            - ~/browscapy/.tox
+      - save_cache:
+          key: v1-packages
+          paths:
+            - ~/.cache
+      - run:
+          name: Test
+          command: ~/.local/bin/tox
