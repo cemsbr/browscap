@@ -1,5 +1,5 @@
 """Test Node class."""
-from typing import Iterable
+from typing import Sequence
 from unittest import TestCase
 
 from browscapy.node import Node
@@ -10,39 +10,67 @@ class TestNode(TestCase):
 
     def test_add_node(self) -> None:
         """Add 2 nodes with a common prefix."""
-        self._test_addition(
-            patterns=('Mozilla/4.0 Test', 'Mozilla/5.0 Test'),
-            expected_parent='Mozilla/',
-            expected_children=('4.0 Test', '5.0 Test')
-        )
+        patterns = 'Mozilla/4.0 Test', 'Mozilla/5.0 Test'
+        self._test_addition(patterns, expected_parent='Mozilla/',
+                            expected_children=patterns)
 
     def test_add_node_no_prefix(self) -> None:
         """Should create a parent with an empty pattern."""
-        pattern1 = 'Mozilla/4.0 Test'
-        pattern2 = 'curl/7.52.1'
-        node1 = Node(pattern1)
-        node2 = Node(pattern2)
-
-        parent = node1 + node2
-        self.assertEqual('', parent.pattern)
-
-        children_patts = [child.pattern for child in parent.children]
-        expected = [pattern1, pattern2]
-        self.assertListEqual(expected, children_patts)
+        patterns = 'Mozilla/4.0 Test', 'curl/7.52.1'
+        self._test_addition(patterns, expected_parent='',
+                            expected_children=patterns)
 
     def test_add_same_patterns(self) -> None:
         """Shouldn't add 2 nodes with the same prefix."""
         node1 = Node('Mozilla/4.0 Test')
         node2 = Node('Mozilla/4.0 Test')
 
-        self.assertRaises(ValueError, lambda: node1 + node2)
+        self.assertRaises(ValueError, lambda: node1.add_node(node2))
 
-    def _test_addition(self, patterns: Iterable[str], expected_parent: str,
-                       expected_children: Iterable[str]) -> None:
+    def test_add_suffixed_pattern(self) -> None:
+        """Should add normally if the other pattern has extra chars."""
+        patterns = 'One', 'One Two'
+        self._test_addition(patterns, expected_parent='One',
+                            expected_children=patterns[1:])
+
+    def _test_addition(self, patterns: Sequence[str], expected_parent: str,
+                       expected_children: Sequence[str]) -> None:
         """Add patterns and check results."""
-        children = [Node(pattern) for pattern in patterns]
-        parent = children[0] + children[1]
+        parent = self._add_nodes(patterns)
         self.assertEqual(expected_parent, parent.pattern)
 
-        actual_children = [child.pattern for child in parent.children]
-        self.assertSequenceEqual(expected_children, actual_children)
+        children_patterns = [child.pattern for child in parent.children]
+        self.assertSequenceEqual(expected_children, children_patterns)
+
+    def test_first_grandchild(self) -> None:
+        """Should add this node as a grandchild."""
+        patterns = 'One', 'One Two', 'One Two Three'
+        root = self._add_nodes(patterns)
+
+        self.assertEqual(patterns[0], root.pattern)
+
+        self.assertEqual(1, len(root.children))
+        child = root.children[0]
+        self.assertEqual(patterns[1], child.pattern)
+
+        self.assertEqual(1, len(child.children))
+        grandchild = child.children[0]
+        self.assertEqual(patterns[2], grandchild.pattern)
+
+    def test_second_child(self) -> None:
+        """Add a node as a second child."""
+        patterns = 'One', 'OneTwo', 'OneFour'
+        root = self._add_nodes(patterns)
+
+        self.assertEqual(patterns[0], root.pattern)
+        self.assertEqual(2, len(root.children))
+        children_patterns = [child.pattern for child in root.children]
+        self.assertSequenceEqual(patterns[1:], children_patterns)
+
+    @staticmethod
+    def _add_nodes(patterns: Sequence[str]) -> Node:
+        nodes = [Node(pattern) for pattern in patterns]
+        root = nodes[0]
+        for node in nodes[1:]:
+            root.add_node(node)
+        return root

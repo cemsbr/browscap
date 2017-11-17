@@ -17,34 +17,65 @@ class Node:
         self.pattern = pattern
         self.children: List[Node] = []
 
-    def __add__(self, other: 'Node') -> 'Node':
-        """Add a new Node to the tree."""
-        parent_patt, child_patts = self._split_patterns(other.pattern)
-        parent = Node(parent_patt)
-        children = [Node(patt) for patt in child_patts]
-        parent.children.extend(children)
-        return parent
+    def add_node(self, node: 'Node') -> 'Node':
+        """Add a new node to the tree."""
+        prefix_len, parent = self.get_parent(node)
+        if node.pattern == parent.pattern:
+            raise ValueError("Can't add nodes with the same pattern: "
+                             f'"{node.pattern}".')
+        parent.add_child(node, prefix_len)
+        return self
 
-    def _split_patterns(self, other_pattern: str) \
-            -> Tuple[str, Tuple[str, str]]:
-        """Separate the common prefix from :attr:`pattern` and ``pattern2``.
+    def add_child(self, child: 'Node', prefix_len: int) -> None:
+        """Add a child as one of this node's children, in place.
 
-        Return the common prefix and a tuple with the suffixes.
+        You should probably use :meth:`add_node` so the new node can be a
+        grandchild for example.
+
+        This node (self) can be modified to become a parent with a sub-pattern
+        of the current one.
         """
-        prefix_len = self._get_common_prefix_length(other_pattern)
+        # If the new pattern starts with self.pattern, add a child
         if prefix_len == len(self.pattern):
-            raise ValueError("Can't add nodes with the same pattern.")
+            self.children.append(child)
+        else:  # Create a parent node with common prefix (may be empty)
+            # A copy of self will be a child
+            self_as_child = Node(self.pattern)
+            self_as_child.children = self.children
+            # self becomes the parent with two children
+            self.pattern = self.pattern[:prefix_len]
+            # Create a new list because current one is with a child
+            self.children = [self_as_child, child]
 
-        parent = self.pattern[:prefix_len]
-        child1 = self.pattern[prefix_len:]
-        child2 = other_pattern[prefix_len:]
+    def get_parent(self, node: 'Node') -> Tuple[int, 'Node']:
+        """Return the parent Node for a browscap pattern.
 
-        return parent, (child1, child2)
+        Search in this node and in all children. The parent is the one that
+        has more characters in common from the beginning of the pattern.
 
-    def _get_common_prefix_length(self, other_pattern: str) -> int:
-        """Return the length of the common prefix."""
+        Returns:
+            int, Node: Maximum number of characters in common from the
+                beginning of the pattern and the Node.
+
+        """
+        this_length = self._get_common_prefix_len(node)
+        # When there's no need to query the children, return self
+        if this_length == 0 or not self.children:
+            return this_length, self
+
+        # Get the best result from all children
+        children_results = (c.get_parent(node) for c in self.children)
+        child_length, child_node = max(children_results)
+
+        # Return best child or self
+        if child_length > this_length:
+            return child_length, child_node
+        return this_length, self
+
+    def _get_common_prefix_len(self, node: 'Node') -> int:
+        """Return the common prefix length."""
         length = 0
-        for char1, char2 in zip(self.pattern, other_pattern):
+        for char1, char2 in zip(self.pattern, node.pattern):
             if char1 != char2:
                 break
             length += 1
