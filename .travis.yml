@@ -1,11 +1,17 @@
 language: python
 python:
   - "3.6"
+cache:
+  directories:
+    - $HOME/.local
+    - $HOME/.cache
+    - .tox
+    - /home/travis/virtualenv
 env:
   - secure: "TNCzUjxg2ass2GIbGm3bN3xHslCfuzZQpDLKKlTDWVz3qB2L8g0FsDNtCJM9zcrszfdstJ43xHebizYeFDxke0mkiLuWXoYxpcXmRFa2SqCk4c9NUt7N85AkFeR5unW5yqy6P6bmrb8P27xngSuFvlcrsf+e1aLPYhwILrODVZDuOXoyo51xHJki7PX50FQXHWyOOXsJW+bTwqT1C7hveUAfr3JH0KjyT902RXPOO9KntbW7TIj7sE1WeQnJW4JU9mBVMx2MbYrJ/54xKmasf3U2kZoAyfblUmJmJU0RilJGY/vrhQWMoIDrtMUrI2vcin6Zy5MyvZfeEGDA2qTQWFT2WDhtV6tB4DcgDdmq4d1xWje+3Z4VSMRTsL7FuER84gUv6TRERFHTzLWtVEZ+fpl33sQBvAy669hwldr8rzjpId2PnNsii6wrKsAcMzxEvcdp5X8U6MMuA6yMTsfHx5+/SI31CrXYTYq8/6JUKgSFZkqLMtVQIi6VHQfu9xaKPJA0D9aMMrvDpWOhgqn+dqXohLgrS+zH02XFwJqEiPRd+xsNgJWSiAopMnezJ3pdb8ZIy7FXQK6Z04eF2K/gjq/DtMjffwtzDD3MmL1TQRuNRGH4Q93amParb2T1a+hcuMCznrdIVbwyqHF1+wz12YD4rWPeI7VZ9l+Jg3VKjsg="
 # command to install dependencies
 install:
-  - pip install -e .[dev]
+  - pip install -r requirements/dev.txt
   - pip install coveralls codecov codeclimate-test-reporter
 # command to run tests
 script:
