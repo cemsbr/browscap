@@ -7,12 +7,9 @@ help:
 	@echo '  make coverage:    Run tests and display test coverage.'
 	@echo '  make lint:        Run several linters.'
 
-env:
-	@export PYTHONPATH="$$PWD:$$PYTHONPATH"
-
-.PHONY: tests
-tests: env
-	@python setup.py test
+clean:
+	python setup.py clean
+	rm -rf .eggs/ .tox/ build/ dist/ browscapy.egg-info/
 
 auto-tests:
 	while [ True ]; do \

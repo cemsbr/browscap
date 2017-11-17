@@ -9,13 +9,13 @@ from codecs import open as codecs_open  # consistent encoding
 from os import path
 
 # Always prefer setuptools over distutils
-from setuptools import find_packages, setup
+from setuptools import setup
 
-here = path.abspath(path.dirname(__file__))
+HERE = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with codecs_open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+with codecs_open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
+    LONG_DESC = f.read()
 
 setup(
     name='browscapy',
@@ -23,10 +23,10 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.0',
+    version='0.0.1a1',
 
     description='Fast and low-memory parser for browscap.org',
-    long_description=long_description,
+    long_description=LONG_DESC,
 
     # The project's main homepage.
     url='https://github.com/cemsbr/browscapy',
@@ -75,34 +75,19 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['docs', 'tests']),
-
-    # List run-time dependencies here. These will be installed by pip when
-    # your project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['docopt', 'regex'],
+    packages=['browscapy'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
-    # $ pip install -e .[dev,test]
+    # $ pip install -e .[dev]
     extras_require={
         'dev': [
-            'pip-tools'
-        ],
-        'test': [
             'coverage',
+            'mypy',
+            'pip-tools',
+            'tox',
             'yala'
-        ],
-    },
-
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'browscapy=browscapy.cli:entry_point',
         ],
     },
 

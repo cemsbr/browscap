@@ -29,3 +29,5 @@
 .. image:: https://sonarqube.com/api/badges/gate?key=github-com-cemsbr-browscapy
    :target: https://sonarcloud.io/dashboard?id=github-com-cemsbr-browscapy
    :alt: Sonarqube badge
+
+Work in progress
