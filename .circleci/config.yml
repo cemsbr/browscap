@@ -10,20 +10,16 @@ jobs:
           command: cd .. && git clone --depth 1 git://github.com/cemsbr/browscapy.git
       - restore_cache:
           keys:
-            - v1-installed-{{ checksum "requirements/dev.txt" }}
-            - v1-packages
+            - v2-installed-{{ checksum "requirements/dev.txt" }}
       - run:
           name: Installing Dependencies
           command: pip install --user -r requirements/dev.txt
       - save_cache:
-          key: v1-installed-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - ~/.local
-            - ~/browscapy/.tox
-      - save_cache:
-          key: v1-packages
+          key: v2-installed-{{ checksum "requirements/dev.txt" }}
           paths:
             - ~/.cache
+            - ~/.local
+            - ~/browscapy/.tox
       - run:
           name: Test
           command: ~/.local/bin/tox
