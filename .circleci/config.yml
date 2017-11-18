@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/browscapy
     docker:
-      - image: circleci/python:3.6.2-stretch
+      - image: cemsbr/python
     steps:
       - run:
           name: Cloning Repository
