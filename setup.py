@@ -83,9 +83,13 @@ setup(
     # $ pip install -e .[dev]
     extras_require={
         'dev': [
+            'bandit',
             'coverage',
+            'eradicate',
             'mypy',
             'pip-tools',
+            'rstcheck',
+            'safety',
             'tox',
             'yala'
         ],
