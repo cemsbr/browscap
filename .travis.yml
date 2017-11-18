@@ -20,3 +20,5 @@ after_success:
   - coveralls
   - codecov
   - codeclimate-test-reporter
+notifications:
+  email: false
