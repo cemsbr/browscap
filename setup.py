@@ -84,7 +84,9 @@ setup(
     extras_require={
         'dev': [
             'bandit',
-            'coverage',
+            # https://bitbucket.org/ned/coveragepy/issues/578/
+            # incomplete-file-path-in-xml-report
+            'coverage<4.4',
             'eradicate',
             'mypy',
             'pip-tools',
