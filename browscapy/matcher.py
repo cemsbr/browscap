@@ -28,6 +28,8 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
                     pat_i += 2  # Next iter will match the 2nd char after *
         elif pat_char == str_char:
             matched_length += 1
+        elif pat_char != '?':  # Don't count '?' as a matching character
+            break
         # Always move both indexes
         pat_i += 1
         str_i += 1

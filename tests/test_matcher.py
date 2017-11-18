@@ -35,6 +35,16 @@ class TestMatcher(TestCase):
         """Should match a pattern with a star in the middle."""
         self._test_match('a*d', 'abcd', True, 2)
 
+    def test_question_mark(self) -> None:
+        """Question mark should mach any character."""
+        for letter in 'bcd':
+            with self.subTest(letter=letter):
+                self._test_match('a?e', f'a{letter}e', True, 2)
+
+    def test_no_match(self) -> None:
+        """Different letter shouldn't match."""
+        self._test_match('abc', 'adc', False, 1)
+
     def _test_match(self, pattern, user_agent, does_match, length):
         """Assert user_agent matches pattern with expected return values."""
         actual_does_match, actual_length = match(pattern, user_agent)
