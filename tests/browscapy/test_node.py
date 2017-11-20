@@ -67,6 +67,20 @@ class TestNode(TestCase):
         children_patterns = [child.pattern for child in root.children]
         self.assertSequenceEqual(patterns[1:], children_patterns)
 
+    def test_add_to_root_node(self) -> None:
+        """Should add child and grandchild to an empty pattern."""
+        root = Node('')
+        root.add_node(Node('ab'))
+        root.add_node(Node('ac'))
+
+        self.assertEqual(1, len(root.children))
+        child = root.children[0]
+        self.assertEqual('a', child.pattern)
+
+        self.assertEqual(2, len(child.children))
+        patterns = [gchild.pattern for gchild in child.children]
+        self.assertSequenceEqual(['ab', 'ac'], patterns)
+
     @staticmethod
     def _add_nodes(patterns: Sequence[str]) -> Node:
         nodes = [Node(pattern) for pattern in patterns]

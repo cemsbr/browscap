@@ -13,6 +13,7 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
     string, excluding "*" and "?".
     """
     matched_length, pat_i, str_i = 0, 0, 0
+    string = string.lower()
 
     while pat_i < len(pattern) and str_i < len(string):
         pat_char = pattern[pat_i]
@@ -34,7 +35,12 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
         pat_i += 1
         str_i += 1
 
+    # There's a match if the string is over and:
+    # - The pattern is also over; or
+    # - The rest of the pattern is only a star
     does_match = (str_i == len(string)
-                  and (pat_i == len(pattern) or pat_char == '*'))
+                  and (pat_i == len(pattern)
+                       or (pat_i < len(pattern)
+                           and pattern[pat_i] == '*')))
 
     return does_match, matched_length

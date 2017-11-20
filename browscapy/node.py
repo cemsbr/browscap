@@ -58,16 +58,14 @@ class Node:
                 beginning of the pattern and the Node.
 
         """
-        this_length = self._get_common_prefix_len(node)
-        # When there's no need to query the children, return self
-        if this_length == 0 or not self.children:
-            return this_length, self
-
         # Get the best result from all children
         children_results = (c.get_parent(node) for c in self.children)
-        child_length, child_node = max(children_results)
+        # Compare only the child_length in key param.
+        child_length, child_node = max(children_results, key=lambda x: x[0],
+                                       default=(0, None))
 
         # Return best child or self
+        this_length = self._get_common_prefix_len(node)
         if child_length > this_length:
             return child_length, child_node
         return this_length, self
