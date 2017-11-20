@@ -23,6 +23,7 @@ class TestNode(TestCase):
     def test_add_same_patterns(self) -> None:
         """Shouldn't add 2 nodes with the same prefix."""
         node1 = Node('Mozilla/4.0 Test')
+        node1.is_pattern = True
         node2 = Node('Mozilla/4.0 Test')
 
         self.assertRaises(ValueError, lambda: node1.add_node(node2))
@@ -78,8 +79,27 @@ class TestNode(TestCase):
         self.assertEqual('a', child.pattern)
 
         self.assertEqual(2, len(child.children))
-        patterns = [gchild.pattern for gchild in child.children]
-        self.assertSequenceEqual(['ab', 'ac'], patterns)
+        actual = [gchild.pattern for gchild in child.children]
+        expected = 'ab', 'ac'
+        self.assertSequenceEqual(expected, actual)
+
+    def test_initial_is_pattern(self) -> None:
+        """Initially, all nodes should be a pattern."""
+        node = Node('')
+        self.assertTrue(node.is_pattern)
+
+    def test_parent_is_not_pattern(self) -> None:
+        """When a parent is created, it should not be a pattern."""
+        parent = Node('ab')
+        parent.add_node(Node('ac'))
+        self.assertFalse(parent.is_pattern)
+
+    def test_parent_is_pattern(self) -> None:
+        """If a pattern equals a parent node, it should become a pattern."""
+        parent = Node('ab')
+        for pattern in 'ac', 'a':
+            parent.add_node(Node(pattern))
+        self.assertTrue(parent.is_pattern)
 
     @staticmethod
     def _add_nodes(patterns: Sequence[str]) -> Node:
