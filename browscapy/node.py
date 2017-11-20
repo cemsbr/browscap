@@ -71,7 +71,7 @@ class Node:
         return this_length, self
 
     def _get_common_prefix_len(self, node: 'Node') -> int:
-        """Return the common prefix length."""
+        """Compare two browscap patterns and return common prefix length."""
         length = 0
         for char1, char2 in zip(self.pattern, node.pattern):
             if char1 != char2:

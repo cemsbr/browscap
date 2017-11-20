@@ -12,7 +12,7 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
     The common chars count is how many chars in the pattern match the
     string, excluding "*" and "?".
     """
-    matched_length, pat_i, str_i = 0, 0, 0
+    chars_matched, pat_i, str_i = 0, 0, 0
     string = string.lower()
 
     while pat_i < len(pattern) and str_i < len(string):
@@ -25,10 +25,10 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
                 next_pat_char = pattern[next_pat_i]
                 if next_pat_char == str_char:  # There's a match after *
                     # Compute a future match
-                    matched_length += 1
+                    chars_matched += 1
                     pat_i += 2  # Next iter will match the 2nd char after *
         elif pat_char == str_char:
-            matched_length += 1
+            chars_matched += 1
         elif pat_char != '?':  # Don't count '?' as a matching character
             break
         # Always move both indexes
@@ -43,4 +43,4 @@ def match(pattern: str, string: str) -> Tuple[bool, int]:
                        or (pat_i < len(pattern)
                            and pattern[pat_i] == '*')))
 
-    return does_match, matched_length
+    return does_match, chars_matched
