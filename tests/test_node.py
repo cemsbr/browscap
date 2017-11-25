@@ -1,8 +1,8 @@
 """Test Node class."""
-from typing import Sequence
+from typing import List, Sequence
 from unittest import TestCase
 
-from browscapy.node import Node
+from browscapy.node import FullPattern, Node, PartialPattern, Properties, Tree
 
 
 class TestNode(TestCase):
@@ -22,11 +22,11 @@ class TestNode(TestCase):
 
     def test_add_same_patterns(self) -> None:
         """Shouldn't add 2 nodes with the same prefix."""
-        node1 = Node('Mozilla/4.0 Test')
-        node1.is_pattern = True
-        node2 = Node('Mozilla/4.0 Test')
-
-        self.assertRaises(ValueError, lambda: node1.add_node(node2))
+        node1 = self._get_full_pattern('Mozilla/4.0 Test')
+        node2 = self._get_full_pattern('Mozilla/4.0 Test')
+        tree = Tree()
+        tree.add_node(node1)
+        self.assertRaises(ValueError, lambda: tree.add_node(node2))
 
     def test_add_suffixed_pattern(self) -> None:
         """Should add normally if the other pattern has extra chars."""
@@ -37,7 +37,7 @@ class TestNode(TestCase):
     def _test_addition(self, patterns: Sequence[str], expected_parent: str,
                        expected_children: Sequence[str]) -> None:
         """Add patterns and check results."""
-        parent = self._add_nodes(patterns)
+        parent = self._add_nodes(*patterns)
         self.assertEqual(expected_parent, parent.pattern)
 
         children_patterns = [child.pattern for child in parent.children]
@@ -46,7 +46,7 @@ class TestNode(TestCase):
     def test_first_grandchild(self) -> None:
         """Should add this node as a grandchild."""
         patterns = 'One', 'One Two', 'One Two Three'
-        root = self._add_nodes(patterns)
+        root = self._add_nodes(*patterns)
 
         self.assertEqual(patterns[0], root.pattern)
 
@@ -61,7 +61,7 @@ class TestNode(TestCase):
     def test_second_child(self) -> None:
         """Add a node as a second child."""
         patterns = 'One', 'OneTwo', 'OneFour'
-        root = self._add_nodes(patterns)
+        root = self._add_nodes(*patterns)
 
         self.assertEqual(patterns[0], root.pattern)
         self.assertEqual(2, len(root.children))
@@ -70,9 +70,7 @@ class TestNode(TestCase):
 
     def test_add_to_root_node(self) -> None:
         """Should add child and grandchild to an empty pattern."""
-        root = Node('')
-        root.add_node(Node('ab'))
-        root.add_node(Node('ac'))
+        root = self._add_nodes('', 'ab', 'ac')
 
         self.assertEqual(1, len(root.children))
         child = root.children[0]
@@ -83,28 +81,34 @@ class TestNode(TestCase):
         expected = 'ab', 'ac'
         self.assertSequenceEqual(expected, actual)
 
-    def test_initial_is_pattern(self) -> None:
-        """Initially, all nodes should be a pattern."""
-        node = Node('')
-        self.assertTrue(node.is_pattern)
+    def test_add_longer_than_partial(self) -> None:
+        """Should add a full pattern as child of a shorter partial pattern."""
+        root = self._add_nodes('ab', 'ac', 'ad')
+        self.assertIsInstance(root, PartialPattern)
+        self.assertEqual('a', root.pattern)
+        self.assertEqual('ad', root.children[2].pattern)
 
-    def test_parent_is_not_pattern(self) -> None:
-        """When a parent is created, it should not be a pattern."""
-        parent = Node('ab')
-        parent.add_node(Node('ac'))
-        self.assertFalse(parent.is_pattern)
+    def test_partial_becomes_full(self) -> None:
+        """If a partial pattern equals a full one, change it to full."""
+        root = self._add_nodes('ab', 'ac', 'a')
+        self.assertIsInstance(root, FullPattern)
 
-    def test_parent_is_pattern(self) -> None:
-        """If a pattern equals a parent node, it should become a pattern."""
-        parent = Node('ab')
-        for pattern in 'ac', 'a':
-            parent.add_node(Node(pattern))
-        self.assertTrue(parent.is_pattern)
+    @classmethod
+    def _add_nodes(cls, *patterns: str) -> Node:
+        tree = Tree()
+        for pattern in patterns:
+            node = cls._get_full_pattern(pattern)
+            tree.add_node(node)
+        assert len(tree.children) == 1
+        return tree.children[0]
+
+    @classmethod
+    def _get_full_pattern(cls, pattern: str) -> FullPattern:
+        properties = cls._get_properties(pattern)
+        return FullPattern(properties)
 
     @staticmethod
-    def _add_nodes(patterns: Sequence[str]) -> Node:
-        nodes = [Node(pattern) for pattern in patterns]
-        root = nodes[0]
-        for node in nodes[1:]:
-            root.add_node(node)
-        return root
+    def _get_properties(pattern: str) -> Properties:
+        prop_values: List[str] = [None] * len(Properties._fields)
+        prop_values[0] = pattern
+        return Properties(*prop_values)

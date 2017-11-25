@@ -1,108 +1,222 @@
 """Node used to search for patterns."""
-from typing import List, Tuple
+from abc import ABC, abstractmethod
+from typing import List, NamedTuple, Tuple, Union
+
+# pylint: disable=invalid-name
+NodeList = List[Union['Node', 'PartialPattern', 'FullPattern']]
+SearchResult = Tuple[int, 'Node', NodeList]
+# pylint: enable=invalid-name
 
 
-class Node:
-    """Full browscap pattern or partial with children.
+class Properties(NamedTuple):  # pylint: disable=too-few-public-methods
+    """All properties found in browscap.csv."""
 
-    Attributes:
-        pattern (str): Partial browscap pattern, excluding parent's and
-            children's.
-        children (List[Node]): Children nodes.
-        is_pattern (bool): True (default) if this node is a complete browscap
-            pattern or False if it is just a partial pattern created to add
-            children with a common pattern prefix.
+    PropertyName: str
+    MasterParent: str
+    LiteMode: str
+    Parent: str
+    Comment: str
+    Browser: str
+    Browser_Type: str
+    Browser_Bits: str
+    Browser_Maker: str
+    Browser_Modus: str
+    Version: str
+    MajorVer: str
+    MinorVer: str
+    Platform: str
+    Platform_Version: str
+    Platform_Description: str
+    Platform_Bits: str
+    Platform_Maker: str
+    Alpha: str
+    Beta: str
+    Win16: str
+    Win32: str
+    Win64: str
+    Frames: str
+    IFrames: str
+    Tables: str
+    Cookies: str
+    BackgroundSounds: str
+    JavaScript: str
+    VBScript: str
+    JavaApplets: str
+    ActiveXControls: str
+    isMobileDevice: str
+    isTablet: str
+    isSyndicationReader: str
+    Crawler: str
+    isFake: str
+    isAnonymized: str
+    isModified: str
+    CssVersion: str
+    AolVersion: str
+    Device_Name: str
+    Device_Maker: str
+    Device_Type: str
+    Device_Pointing_Method: str
+    Device_Code_Name: str
+    Device_Brand_Name: str
+    RenderingEngine_Name: str
+    RenderingEngine_Version: str
+    RenderingEngine_Description: str
+    RenderingEngine_Maker: str
 
-    """
 
-    def __init__(self, pattern: str) -> None:
-        """Build a node from a browscap pattern string."""
+class Node(ABC):
+    """A Node contains a pattern and a children list."""
+
+    def __init__(self, pattern: str, children: NodeList = None) -> None:
+        """Initialize children."""
         self.pattern = pattern
-        self.children: List[Node] = []
-        self.is_pattern = True
+        self.children = children or []
 
-    def add_node(self, node: 'Node') -> None:
-        """Add a new node to the tree."""
-        prefix_len, parent = self.get_parent(node)
-        if node.pattern == parent.pattern:
-            if parent.is_pattern:
-                raise ValueError("Can't add nodes with the same pattern: "
-                                 f'"{node.pattern}".')
-            else:
-                parent.is_pattern = True
-        parent.add_child(node, prefix_len)
-
-    def add_child(self, child: 'Node', prefix_len: int) -> None:
-        """Add a child as one of this node's children, in place.
+    @abstractmethod
+    def add_child(self, child: 'FullPattern', common_length: int) -> 'Node':
+        """Add a child as one of this node's children and return result.
 
         You should probably use :meth:`add_node` so the new node can be a
         grandchild for example.
-
-        This node (self) can be modified to become a parent with a sub-pattern
-        of the current one.
         """
-        # If the new pattern starts with self.pattern, add a child
-        if prefix_len == len(self.pattern):
-            self.children.append(child)
-        else:  # Create a parent node with common prefix (may be empty)
-            # A copy of self will be a child
-            self_as_child = self._copy()
-            # self becomes the parent with two children
-            self.pattern = self.pattern[:prefix_len]
-            self.is_pattern = False
-            # Create a new list because current one is with a child
-            self.children = [self_as_child, child]
+        pass  # pragma: no cover
 
-    def _copy(self) -> 'Node':
-        """Return a shallow copy of self."""
-        node = Node(self.pattern)
-        node.children = self.children
-        node.is_pattern = self.is_pattern
-        return node
+    def find_parent(self, node: 'Node', siblings: NodeList,
+                    partial_score: int = -1) -> SearchResult:
+        """Return the proper parent Node for a new node.
 
-    def get_parent(self, node: 'Node', parent_match: int = 0) \
-            -> Tuple[int, 'Node']:
-        """Return the parent Node for a browscap pattern.
-
-        Search in this node and in all children. The parent is the one that
-        has more characters in common from the beginning of the pattern.
+        Recursive search that returns the best match for this subtree (self as
+        its root node). The best match has the most characters in common (from
+        the beginning, consecutive) and, as a second criteria, it's the
+        shortest string (closer to the root).
 
         Args:
             node (Node): The orphan node.
-            parent_match (int): How many chars were matched in the parent. If
-                we can't match any other character, do not even search through
-                children. This improves performance a lot.
+            siblings (List[Node]): Siblings of self, at least 1. This method
+                does not modify it. The siblings will be manipulated by the
+                caller.
+            partial_score (int): Default is -1. Number of characters in common
+                with the parent.
 
         Returns:
-            int, Node: Maximum number of characters in common from the
-                beginning of the pattern and the Node.
+            int, Node, List[Node]: The best result of this subtree: score
+                (number of characters in common with the parent), parent,
+                siblings including the parent.
 
         """
-        # For performance reasons, search through as less children as possible
-        self_length = self._get_common_prefix_len(node)
-        # No need to check children when:
-        # - There's no children; or
-        # - Self is not root (root has empty pattern) and we couldn't match any
-        #   other character than self's parent.
-        if not self.children or (self.pattern and self_length <= parent_match):
-            return self_length, self
+        start_index = 0 if partial_score == -1 else partial_score
+        self_score = self._get_common_length(node.pattern, start_index)
 
-        # Get the best result from all children
-        children_results = (child.get_parent(node, self_length)
-                            for child in self.children)
-        # Compare only the child_length in key param.
-        child_length, child_node = max(children_results, key=lambda x: x[0])
+        if self_score == partial_score:
+            # We can't get better because suffix has nothing in common.
+            return 0, None, None  # Ignore this subtree, including self.
 
-        # Return best child or self
-        if child_length > self_length:
-            return child_length, child_node
-        return self_length, self
+        self_result = self_score, self, siblings
+        if not self.children:
+            return self_result
 
-    def _get_common_prefix_len(self, node: 'Node') -> int:
-        """Compare two browscap patterns and return common prefix length."""
+        return self._compare_with_children(node, self_result)
+
+    def _compare_with_children(self, node: 'Node', self_result: SearchResult) \
+            -> SearchResult:
+        self_score = self_result[0]
+        results = (child.find_parent(node, self.children, self_score)
+                   for child in self.children)
+        children_result = max(results, key=lambda x: x[0])
+
+        if children_result[0] > self_score:
+            return children_result  # Found a child with a higher score
+        return self_result          # return self_score
+
+    def _get_common_length(self, pattern: str, start: int) -> int:
+        """Return the length of the longest common prefix."""
         length = 0
-        for char1, char2 in zip(self.pattern, node.pattern):
+        for char1, char2 in zip(self.pattern[start:], pattern[start:]):
             if char1 != char2:
                 break
             length += 1
-        return length
+        return length + start
+
+
+class FullPattern(Node):
+    """Browscap pattern and properties.
+
+    Attributes:
+        properties (Properties): Browscap properties.
+        children (List[Node]): Children nodes.
+        pattern (str): Browscap pattern.
+
+    """
+
+    def __init__(self, properties: Properties) -> None:
+        """Build a node from a browscap pattern string."""
+        self.properties = properties
+        super().__init__(self.properties.PropertyName)
+
+    def add_child(self, child: 'FullPattern', common_length: int) \
+            -> Node:
+        """Return a partial pattern with both child and self as children."""
+        if child.pattern == self.pattern:
+            msg = f'Can\'t add nodes with the same pattern "{child.pattern}"'
+            raise ValueError(msg)
+
+        if common_length == len(self.pattern):
+            # Only possible case: child.pattern = self.pattern + a suffix
+            self.children.append(child)
+            return self
+
+        # Create partial pattern as a parent node
+        pattern = self.pattern[:common_length]
+        children: NodeList = [self, child]
+        return PartialPattern(pattern, children)
+
+
+class PartialPattern(Node):
+    """Partial browscap pattern in common with children."""
+
+    def add_child(self, child: FullPattern, common_length: int) -> Node:
+        """Add a child node."""
+        # We already know that child.pattern >= self.pattern (there's an
+        # assertion for that).
+        if len(child.pattern) > len(self.pattern):
+            self.children.append(child)
+            return self
+        # Same pattern. This partial pattern becomes a full one.
+        return self._to_full_pattern(child)
+
+    def _to_full_pattern(self, full_pattern: FullPattern) -> FullPattern:
+        """Return a full pattern from this partial pattern.
+
+        Reuse node by adding :attr:`children` to it.
+        """
+        full_pattern.children.extend(self.children)
+        return full_pattern
+
+
+class Tree:
+    """Store nodes to match user agents. In other words, the root node."""
+
+    def __init__(self):
+        """Initialize an empty list of children."""
+        self.children: NodeList = []
+
+    def add_node(self, node: FullPattern) -> None:
+        """Add a new node."""
+        if not self.children:
+            self.children.append(node)
+        else:
+            self._add_to_children(node)
+
+    def _add_to_children(self, node: FullPattern) -> None:
+        """Add node to the proper existent node."""
+        common_length, parent, parents = self.find_parent(node)
+        new_parent = parent.add_child(node, common_length)
+        if new_parent is not parent:    # PartialPattern became FullPattern
+            parents.remove(parent)      # Remove the PartialPattern node
+            parents.append(new_parent)  # Add the new FullPattern node
+
+    def find_parent(self, node: Node) -> SearchResult:
+        """Find the proper parent for a new node."""
+        results = (child.find_parent(node, self.children)
+                   for child in self.children)
+        return max(results, key=lambda x: x[0])
