@@ -2,7 +2,8 @@
 from typing import List, Sequence
 from unittest import TestCase
 
-from browscapy.node import FullPattern, Node, PartialPattern, Properties, Tree
+from browscapy.node import FullPattern, Node, PartialPattern, Tree
+from browscapy.properties import Properties
 
 
 class TestNode(TestCase):
