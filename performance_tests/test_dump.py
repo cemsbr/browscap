@@ -28,7 +28,7 @@ def build_tree() -> None:
 
 def pickle_tree() -> None:
     """Create and dump the browscap tree."""
-    cProfile.run('build_tree()')
+    cProfile.run('build_tree()', sort='tottime')
     with open('dump.pkl', 'wb') as dump_file:
         print('Pickling')
         pickle.Pickler(dump_file).dump(TREE)

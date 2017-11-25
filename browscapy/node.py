@@ -67,9 +67,13 @@ class Node(ABC):
     def _compare_with_children(self, node: 'Node', self_result: SearchResult) \
             -> SearchResult:
         self_score = self_result[0]
-        results = (child.find_parent(node, self.children, self_score)
-                   for child in self.children)
-        children_result = max(results, key=lambda x: x[0])
+
+        children_result: SearchResult = (self_score, None, None)
+        for child in self.children:
+            if len(child.pattern) > children_result[0]:
+                result = child.find_parent(node, self.children, self_score)
+                if result[0] > children_result[0]:
+                    children_result = result
 
         if children_result[0] > self_score:
             return children_result  # Found a child with a higher score
