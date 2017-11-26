@@ -1,4 +1,4 @@
-"""Measure memory required to create the cache."""
+"""Profile cache creation and dump."""
 import cProfile
 import csv
 import pickle
@@ -28,7 +28,7 @@ def build_tree() -> None:
 
 def pickle_tree() -> None:
     """Create and dump the browscap tree."""
-    cProfile.run('build_tree()', sort='tottime')
+    cProfile.run('build_tree()', sort=1)
     with open('dump.pkl', 'wb') as dump_file:
         print('Pickling')
         pickle.Pickler(dump_file).dump(TREE)

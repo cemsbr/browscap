@@ -2,24 +2,22 @@
 from typing import List, Sequence
 from unittest import TestCase
 
-from browscapy.node import FullPattern, Node, PartialPattern, Tree
+from browscapy.node import FullPattern, Parent, PartialPattern, Tree
 from browscapy.properties import Properties
 
 
 class TestNode(TestCase):
     """Test Nodes with browscap patterns."""
 
-    def test_add_node(self) -> None:
+    def test_add_nodes(self) -> None:
         """Add 2 nodes with a common prefix."""
         patterns = 'Mozilla/4.0 Test', 'Mozilla/5.0 Test'
-        self._test_addition(patterns, expected_parent='Mozilla/',
-                            expected_children=patterns)
+        self._test_addition(patterns, ['Mozilla/'], patterns)
 
-    def test_add_node_no_prefix(self) -> None:
-        """Should create a parent with an empty pattern."""
+    def test_add_nodes_no_prefix(self) -> None:
+        """Should have 2 children in the first level."""
         patterns = 'Mozilla/4.0 Test', 'curl/7.52.1'
-        self._test_addition(patterns, expected_parent='',
-                            expected_children=patterns)
+        self._test_addition(patterns, patterns)
 
     def test_add_same_patterns(self) -> None:
         """Shouldn't add 2 nodes with the same prefix."""
@@ -31,77 +29,52 @@ class TestNode(TestCase):
 
     def test_add_suffixed_pattern(self) -> None:
         """Should add normally if the other pattern has extra chars."""
-        patterns = 'One', 'One Two'
-        self._test_addition(patterns, expected_parent='One',
-                            expected_children=patterns[1:])
-
-    def _test_addition(self, patterns: Sequence[str], expected_parent: str,
-                       expected_children: Sequence[str]) -> None:
-        """Add patterns and check results."""
-        parent = self._add_nodes(*patterns)
-        self.assertEqual(expected_parent, parent.pattern)
-
-        children_patterns = [child.pattern for child in parent.children]
-        self.assertSequenceEqual(expected_children, children_patterns)
+        self._test_addition(['One', 'One Two'], ['One'], ['One Two'])
 
     def test_first_grandchild(self) -> None:
         """Should add this node as a grandchild."""
-        patterns = 'One', 'One Two', 'One Two Three'
-        root = self._add_nodes(*patterns)
-
-        self.assertEqual(patterns[0], root.pattern)
-
-        self.assertEqual(1, len(root.children))
-        child = root.children[0]
-        self.assertEqual(patterns[1], child.pattern)
-
-        self.assertEqual(1, len(child.children))
-        grandchild = child.children[0]
-        self.assertEqual(patterns[2], grandchild.pattern)
+        self._test_addition(['One', 'One Two', 'One Two Three'],
+                            ['One'], ['One Two'], ['One Two Three'])
 
     def test_second_child(self) -> None:
         """Add a node as a second child."""
-        patterns = 'One', 'OneTwo', 'OneFour'
-        root = self._add_nodes(*patterns)
+        self._test_addition(['One', 'OneTwo', 'OneFour'],
+                            ['One'], ['OneTwo', 'OneFour'])
 
-        self.assertEqual(patterns[0], root.pattern)
-        self.assertEqual(2, len(root.children))
-        children_patterns = [child.pattern for child in root.children]
-        self.assertSequenceEqual(patterns[1:], children_patterns)
-
-    def test_add_to_root_node(self) -> None:
-        """Should add child and grandchild to an empty pattern."""
-        root = self._add_nodes('', 'ab', 'ac')
-
-        self.assertEqual(1, len(root.children))
-        child = root.children[0]
-        self.assertEqual('a', child.pattern)
-
-        self.assertEqual(2, len(child.children))
-        actual = [gchild.pattern for gchild in child.children]
-        expected = 'ab', 'ac'
-        self.assertSequenceEqual(expected, actual)
+    def test_add_two_children(self) -> None:
+        """Add two siblings in the first level."""
+        tree = self._add_patterns('a', 'b')
+        self.assertEqual(2, len(tree.children))
 
     def test_add_longer_than_partial(self) -> None:
         """Should add a full pattern as child of a shorter partial pattern."""
-        root = self._add_nodes('ab', 'ac', 'ad')
-        self.assertIsInstance(root, PartialPattern)
-        self.assertEqual('a', root.pattern)
-        self.assertEqual('ad', root.children[2].pattern)
+        tree = self._add_patterns('ab', 'ac', 'ad')
+        child = tree.children[0]
+        self.assertIsInstance(child, PartialPattern)
+        self.assertEqual('a', child.pattern)
+        self.assertEqual('ad', child.children[2].pattern)
 
     def test_partial_becomes_full(self) -> None:
         """If a partial pattern equals a full one, change it to full."""
-        root = self._add_nodes('ab', 'ac', 'a')
-        self.assertIsInstance(root, FullPattern)
+        tree = self._add_patterns('ab', 'ac', 'a')
+        self.assertIsInstance(tree.children[0], FullPattern)
+
+    def _test_addition(self, patterns: Sequence[str],
+                       *level_patterns: Sequence[str]) -> None:
+        """Add patterns and compare resulting patterns of each level."""
+        node: Parent = self._add_patterns(*patterns)
+        for expected in level_patterns:
+            actual = [child.pattern for child in node.children]
+            self.assertSequenceEqual(expected, actual)
+            node = node.children[0]
 
     @classmethod
-    def _add_nodes(cls, *patterns: str) -> Node:
+    def _add_patterns(cls, *patterns: str) -> Tree:
         tree = Tree()
         for pattern in patterns:
             node = cls._get_full_pattern(pattern)
             tree.add_node(node)
-        assert len(tree.children) == 1
-        return tree.children[0]
+        return tree
 
     @classmethod
     def _get_full_pattern(cls, pattern: str) -> FullPattern:

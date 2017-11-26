@@ -1,0 +1,47 @@
+Before nodes: 11280 bytes
+After nodes: 795164 bytes
+         24129994 function calls (21668683 primitive calls) in 34.272 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+ 15093216   14.052    0.000   14.052    0.000 node.py:87(get_score)
+2681465/220154    6.581    0.000   21.839    0.000 node.py:54(find_parent)
+        1    5.521    5.521   34.272   34.272 test_dump.py:17(build_tree)
+   220155    2.657    0.000    5.226    0.000 csv.py:108(__next__)
+   220156    2.267    0.000    2.345    0.000 {built-in method builtins.next}
+  2461311    1.205    0.000    1.205    0.000 node.py:30(update)
+   220154    0.317    0.000   22.750    0.000 node.py:159(add_node)
+   220154    0.240    0.000    0.476    0.000 node.py:108(__init__)
+   277264    0.189    0.000    0.298    0.000 node.py:72(__init__)
+   220154    0.182    0.000    0.300    0.000 <string>:12(__new__)
+   440309    0.170    0.000    0.170    0.000 csv.py:94(fieldnames)
+   158713    0.147    0.000    0.212    0.000 node.py:140(add_child)
+    61376    0.142    0.000    0.246    0.000 node.py:113(add_child)
+   220154    0.136    0.000    0.136    0.000 node.py:23(reset)
+   220154    0.119    0.000    0.119    0.000 {built-in method __new__ of type object at 0x558497634040}
+   277264    0.110    0.000    0.110    0.000 node.py:41(__init__)
+   819110    0.104    0.000    0.104    0.000 {built-in method builtins.len}
+    16500    0.045    0.000    0.045    0.000 {built-in method _codecs.utf_8_decode}
+    16500    0.033    0.000    0.078    0.000 codecs.py:318(decode)
+   220154    0.030    0.000    0.030    0.000 {method 'append' of 'list' objects}
+    61379    0.025    0.000    0.025    0.000 {method 'remove' of 'list' objects}
+     4269    0.001    0.000    0.001    0.000 {method 'extend' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+       65    0.000    0.000    0.000    0.000 node.py:165(add_child)
+        1    0.000    0.000   34.272   34.272 {built-in method builtins.exec}
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+        2    0.000    0.000    0.000    0.000 {built-in method resource.getrusage}
+        1    0.000    0.000   34.272   34.272 <string>:1(<module>)
+        2    0.000    0.000    0.000    0.000 test_dump.py:12(get_memory)
+        1    0.000    0.000    0.000    0.000 {built-in method _csv.reader}
+        1    0.000    0.000    0.000    0.000 csv.py:82(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method _locale.nl_langinfo}
+        1    0.000    0.000    0.000    0.000 _bootlocale.py:23(getpreferredencoding)
+        1    0.000    0.000    0.000    0.000 codecs.py:308(__init__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 codecs.py:259(__init__)
+        1    0.000    0.000    0.000    0.000 csv.py:91(__iter__)
+
+
+Pickling
