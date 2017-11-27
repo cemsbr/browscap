@@ -1,4 +1,18 @@
-"""Node used to search for patterns."""
+"""Tree to search information about a given user agent.
+
+The tree is built to allow a quick search. It is good enough to build a tree
+with the following properties:
+
+- A child has a longer pattern;
+- Sibling nodes have different patterns.
+- For each browscap pattern, there's one, and only one, FullPattern node
+storing its information;
+- Other nodes can be created when two browscap patterns have a common prefix.
+Their type is PartialPattern;
+
+The properties above allow a fast search by descending the only sibling
+having a substring of the new node's patterns.
+"""
 from abc import ABC, abstractmethod
 from typing import List, Union
 
@@ -11,7 +25,11 @@ NodeList = List[Union['Node', 'PartialPattern', 'FullPattern']]
 
 
 class SearchResult:
-    """Store the best result while searching a new node's parent."""
+    """Store the best result while searching a new node's parent.
+
+    The class variables prevent sending parameters in several calls, including
+    recursive ones. As we don't use multiple threads or process, this is safe.
+    """
 
     #: int: Number of characters in common since the pattern beginning.
     score: int
