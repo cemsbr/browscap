@@ -1,6 +1,7 @@
 """Test Node class."""
 from typing import List, Sequence
 from unittest import TestCase
+from unittest.mock import MagicMock
 
 from browscapy.node import FullPattern, Parent, PartialPattern, Tree
 from browscapy.properties import Properties
@@ -8,6 +9,11 @@ from browscapy.properties import Properties
 
 class TestNode(TestCase):
     """Test Nodes with browscap patterns."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Mock the database."""
+        FullPattern.DATABASE = MagicMock()
 
     def test_add_nodes(self) -> None:
         """Add 2 nodes with a common prefix."""

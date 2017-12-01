@@ -14,7 +14,8 @@ The properties above allow a fast search by descending the only sibling
 having a substring of the new node's patterns.
 """
 from abc import ABC, abstractmethod
-from typing import List, Union
+from shelve import DbfilenameShelf
+from typing import List, Union, cast
 
 from .properties import Properties
 
@@ -123,10 +124,22 @@ class FullPattern(Node):
 
     """
 
+    DATABASE: DbfilenameShelf
+
     def __init__(self, properties: Properties) -> None:
         """Build a node from a browscap pattern string."""
         super().__init__(properties.PropertyName)
         self.properties = properties
+
+    @property
+    def properties(self) -> Properties:
+        """Return properties from database."""
+        return cast(Properties, self.DATABASE[self.pattern])
+
+    @properties.setter
+    def properties(self, value: Properties) -> None:
+        """Store properties in database."""
+        self.DATABASE[self.pattern] = value
 
     def add_child(self, child: 'FullPattern', parent: Parent) -> None:
         """Add the child. May create a new PartialPattern node.
