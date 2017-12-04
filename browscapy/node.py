@@ -150,19 +150,23 @@ class FullPattern(Node):
         if child.pattern == self.pattern:
             msg = f'Can\'t add nodes with the same pattern "{child.pattern}"'
             raise ValueError(msg)
-        # From now on, patterns are different
 
+        # From now on, patterns are different
         if SearchResult.score == len(self.pattern):
             # Self's pattern is contained in child's, so we add a new child.
             self.children.append(child)
         else:  # They have a non-empty difference
-            # Create partial pattern as a parent node with the common chars.
-            common_prefix = child.pattern[:SearchResult.score]
-            children: NodeList = [self, child]
-            new_child = PartialPattern(common_prefix, children)
-            # Self will go down one generation
-            parent.children.remove(self)
-            parent.children.append(new_child)
+            self._create_partial_pattern(child, parent)
+
+    def _create_partial_pattern(self, child: 'FullPattern', parent: Parent) \
+            -> None:
+        """Create partial pattern as a parent node with the common chars."""
+        common_prefix = child.pattern[:SearchResult.score]
+        children: NodeList = [self, child]
+        partial_pattern = PartialPattern(common_prefix, children)
+        # Replace self by the new PartialPattern
+        parent.children.remove(self)
+        parent.children.append(partial_pattern)
 
 
 class PartialPattern(Node):
@@ -175,13 +179,35 @@ class PartialPattern(Node):
         is replaced by FullPattern node.
         """
         # Assume that child's pattern size >= self's
-        if len(child.pattern) > len(self.pattern):
-            self.children.append(child)
-        else:  # Same pattern. Replace this partial pattern by a full one.
-            # The FullPattern is the child with self's children
-            child.children.extend(self.children)
-            parent.children.remove(self)
-            parent.children.append(child)
+        if SearchResult.score == len(self.pattern):
+            if len(child.pattern) == len(self.pattern):
+                self._become_full_pattern(child, parent)
+            else:  # > (child has a suffix)
+                self.children.append(child)
+        else:  # New PartialPattern
+            self._split_pattern(child)
+
+    def _become_full_pattern(self, full_pattern: FullPattern,
+                             parent: Parent) -> None:
+        """Make this PartialPattern a FullPattern.
+
+        Add self's children to full_pattern, then replace self with
+        full_pattern in the parent children list.
+        """
+        full_pattern.children.extend(self.children)
+        parent.children.remove(self)
+        parent.children.append(full_pattern)
+
+    def _split_pattern(self, full_pattern: FullPattern) -> None:
+        """Create a new PartialPattern parent with a smaller pattern size.
+
+        This node will be the parent and its copy and full_pattern, the
+        children.
+        """
+        self_copy = PartialPattern(self.pattern, self.children)
+        smaller_prefix = self.pattern[:SearchResult.score]
+        self.pattern = smaller_prefix
+        self.children = [self_copy, full_pattern]
 
 
 class Tree(Parent):

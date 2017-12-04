@@ -65,6 +65,12 @@ class TestNode(TestCase):
         tree = self._add_patterns('ab', 'ac', 'a')
         self.assertIsInstance(tree.children[0], FullPattern)
 
+    def test_partial_change(self) -> None:
+        """Create another PartialPattern from a PartialPattern."""
+        patterns = '*Obigo/Q05*', '*Obigo/Q03*', '*Obigo/WAP2.0*'
+        self._test_addition(patterns, ['*Obigo/'],
+                            ['*Obigo/Q0', patterns[-1]])
+
     def _test_addition(self, patterns: Sequence[str],
                        *level_patterns: Sequence[str]) -> None:
         """Add patterns and compare resulting patterns of each level."""
