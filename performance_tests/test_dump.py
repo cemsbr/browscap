@@ -19,23 +19,22 @@ def get_memory() -> int:
 def build_tree() -> None:
     """Build the whole tree."""
     with open('../browscap.csv') as browscap:
-        csv_reader = csv.DictReader(browscap)
+        csv_reader = csv.reader(browscap)
+        next(csv_reader)  # skip header
         print('Memory before:', get_memory(), 'bytes')
         print('Parsing and saving properties...', file=stderr)
         for row in csv_reader:
-            properties = Properties(**row)
+            properties = Properties(*row)
             node = FullPattern(properties)
             TREE.add_node(node)
-        print('Calculating max length...', file=stderr)
-        TREE.calc_max_length()
-        print('Sorting tree...', file=stderr)
-        TREE.sort_children()
+        print('Optimizing tree...', file=stderr)
+        TREE.optimize()
         print('Storing index...', file=stderr)
         SearchTree.store_parsed_tree(TREE)
         print('Memory after:', get_memory(), 'bytes')
 
 
-def pickle_tree() -> None:
+def build_cache() -> None:
     """Create and dump the browscap tree."""
     Database.init(Database.EMPTY_WRITE)
     cProfile.run('build_tree()', sort=1)
@@ -44,4 +43,4 @@ def pickle_tree() -> None:
 
 
 if __name__ == '__main__':
-    pickle_tree()
+    build_cache()
