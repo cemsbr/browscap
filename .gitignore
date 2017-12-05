@@ -1,13 +1,17 @@
+# Python
 *.egg-info/
-.*.swp
 .coverage
+.mypy_cache/
+.tox
 __pycache__/
 htmlcov/
-.mypy_cache/
 
 # SonarQube files
-.sonar/
+.scannerwork/
 coverage.xml
 nosetests.xml
 pylint-report.txt
 sonar-project.properties
+
+# Misc
+.*.swp

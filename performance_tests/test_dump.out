@@ -1,60 +1,90 @@
-Before nodes: 11568 bytes
-After nodes: 121264 bytes
-         23166864 function calls (19106942 primitive calls) in 32.975 seconds
+Memory before: 11576 bytes
+Memory after: 122888 bytes
+         44214585 function calls (39048222 primitive calls) in 41.873 seconds
 
    Ordered by: internal time
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-  9403614    8.298    0.000    8.298    0.000 node.py:106(get_score)
-4280076/220154    5.630    0.000   15.731    0.000 node.py:73(find_parent)
-        1    5.447    5.447   32.975   32.975 test_dump.py:25(build_tree)
-   220155    2.540    0.000    4.759    0.000 csv.py:108(__next__)
-   220154    2.261    0.000    2.419    0.000 {method 'dump' of '_pickle.Pickler' objects}
-   220154    2.207    0.000    4.757    0.000 shelve.py:119(__setitem__)
-   220156    1.956    0.000    2.013    0.000 {built-in method builtins.next}
-  4059922    1.803    0.000    1.803    0.000 node.py:49(update)
-   220154    0.440    0.000    5.197    0.000 node.py:139(properties)
-   220154    0.324    0.000   16.753    0.000 node.py:216(add_node)
-   220154    0.320    0.000    5.733    0.000 node.py:129(__init__)
-   294269    0.202    0.000    0.304    0.000 node.py:91(__init__)
-   164638    0.187    0.000    0.308    0.000 node.py:175(add_child)
-   220154    0.170    0.000    0.283    0.000 <string>:12(__new__)
-   220154    0.158    0.000    0.158    0.000 <string>:39(__getnewargs__)
-   440309    0.153    0.000    0.153    0.000 csv.py:94(fieldnames)
+  9403614    8.406    0.000    8.406    0.000 node.py:116(get_score)
+4280076/220154    5.537    0.000   15.762    0.000 node.py:73(find_parent)
+        1    5.462    5.462   41.873   41.873 test_dump.py:19(build_tree)
+   514131    4.481    0.000    8.372    0.000 shelve.py:119(__setitem__)
+   514131    3.469    0.000    3.641    0.000 {method 'dump' of '_pickle.Pickler' objects}
+   220155    2.521    0.000    4.746    0.000 csv.py:108(__next__)
+ 16779079    1.996    0.000    1.996    0.000 node.py:137(<genexpr>)
+   220156    1.964    0.000    2.021    0.000 {built-in method builtins.next}
+  4059922    1.819    0.000    1.819    0.000 node.py:49(update)
+   218808    1.239    0.000    3.235    0.000 {built-in method builtins.sum}
+293976/65    0.880    0.000    4.766    0.073 search.py:27(_store_parsed_node)
+   220154    0.437    0.000    5.370    0.000 node.py:167(properties)
+   220154    0.315    0.000   16.784    0.000 node.py:244(add_node)
+   220154    0.299    0.000    5.906    0.000 node.py:157(__init__)
+   294269    0.215    0.000    0.331    0.000 node.py:100(__init__)
+   164638    0.188    0.000    0.309    0.000 node.py:203(add_child)
+   514131    0.183    0.000    0.183    0.000 {method 'encode' of 'str' objects}
+   220154    0.172    0.000    0.294    0.000 <string>:12(__new__)
+   220154    0.171    0.000    0.171    0.000 <string>:39(__getnewargs__)
+293976/65    0.169    0.000    3.708    0.057 node.py:126(calc_max_length)
+   440309    0.154    0.000    0.154    0.000 csv.py:94(fieldnames)
+369079/739    0.148    0.000    3.707    0.005 node.py:129(<genexpr>)
    220154    0.144    0.000    0.144    0.000 node.py:42(reset)
-   949817    0.113    0.000    0.113    0.000 {built-in method builtins.len}
-   220154    0.113    0.000    0.113    0.000 {built-in method __new__ of type object at 0x56111281a040}
-   294269    0.102    0.000    0.102    0.000 node.py:60(__init__)
-   220154    0.091    0.000    0.091    0.000 {method 'encode' of 'str' objects}
-    54187    0.089    0.000    0.180    0.000 node.py:161(_create_partial_pattern)
-    55451    0.057    0.000    0.247    0.000 node.py:144(add_child)
-   220154    0.039    0.000    0.039    0.000 {method 'getvalue' of '_io.BytesIO' objects}
+   369079    0.143    0.000    0.143    0.000 search.py:32(<genexpr>)
+   220154    0.122    0.000    0.122    0.000 {built-in method __new__ of type object at 0x55bdc0cfb040}
+   294269    0.116    0.000    0.116    0.000 node.py:60(__init__)
+   949817    0.108    0.000    0.108    0.000 {built-in method builtins.len}
+ 75176/65    0.107    0.000    0.208    0.003 node.py:139(sort_children)
+   218808    0.100    0.000    3.335    0.000 node.py:135(get_pattern_length)
+   293977    0.089    0.000    0.089    0.000 search.py:11(__init__)
+    54187    0.089    0.000    0.187    0.000 node.py:189(_create_partial_pattern)
+    73822    0.082    0.000    0.136    0.000 abc.py:178(__instancecheck__)
+   293977    0.077    0.000    0.214    0.000 {built-in method builtins.isinstance}
+    75176    0.075    0.000    0.100    0.000 {method 'sort' of 'list' objects}
+   514131    0.067    0.000    0.067    0.000 {method 'getvalue' of '_io.BytesIO' objects}
+    55451    0.057    0.000    0.254    0.000 node.py:172(add_child)
+  75169/1    0.056    0.000    3.708    3.708 {built-in method builtins.max}
+   147646    0.054    0.000    0.054    0.000 _weakrefset.py:70(__contains__)
     16500    0.032    0.000    0.032    0.000 {built-in method _codecs.utf_8_decode}
    200226    0.027    0.000    0.027    0.000 {method 'append' of 'list' objects}
-    19928    0.026    0.000    0.050    0.000 node.py:201(_split_pattern)
-    16500    0.025    0.000    0.057    0.000 codecs.py:318(decode)
-    54480    0.021    0.000    0.021    0.000 {method 'remove' of 'list' objects}
-      293    0.000    0.000    0.001    0.000 node.py:190(_become_full_pattern)
-        1    0.000    0.000   32.975   32.975 {built-in method builtins.exec}
-        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+    16500    0.026    0.000    0.058    0.000 codecs.py:318(decode)
+    19928    0.026    0.000    0.051    0.000 node.py:229(_split_pattern)
+   293911    0.026    0.000    0.026    0.000 node.py:144(<lambda>)
+    54480    0.023    0.000    0.023    0.000 {method 'remove' of 'list' objects}
+      293    0.000    0.000    0.001    0.000 node.py:218(_become_full_pattern)
+        1    0.000    0.000    4.766    4.766 search.py:17(store_parsed_tree)
+        6    0.000    0.000    0.000    0.000 {built-in method builtins.print}
       293    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
-       65    0.000    0.000    0.000    0.000 node.py:222(add_child)
-        1    0.000    0.000    0.000    0.000 copyreg.py:96(_slotnames)
-        2    0.000    0.000    0.000    0.000 {built-in method builtins.print}
-        1    0.000    0.000    0.000    0.000 csv.py:82(__init__)
-        2    0.000    0.000    0.000    0.000 {built-in method resource.getrusage}
-        2    0.000    0.000    0.000    0.000 test_dump.py:13(get_memory)
-        1    0.000    0.000    0.000    0.000 _bootlocale.py:23(getpreferredencoding)
-        1    0.000    0.000   32.975   32.975 <string>:1(<module>)
+       66    0.000    0.000    3.708    0.056 node.py:256(<genexpr>)
+        1    0.000    0.000   41.873   41.873 {built-in method builtins.exec}
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+       65    0.000    0.000    0.000    0.000 node.py:250(add_child)
+        1    0.000    0.000    0.208    0.208 node.py:258(sort_children)
+       66    0.000    0.000    0.000    0.000 search.py:21(<genexpr>)
         1    0.000    0.000    0.000    0.000 {built-in method _locale.nl_langinfo}
+        2    0.000    0.000    0.000    0.000 copyreg.py:96(_slotnames)
+        1    0.000    0.000    0.000    0.000 abc.py:194(__subclasscheck__)
+        1    0.000    0.000    0.000    0.000 _bootlocale.py:23(getpreferredencoding)
+        1    0.000    0.000   41.873   41.873 <string>:1(<module>)
+        2    0.000    0.000    0.000    0.000 {built-in method resource.getrusage}
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:58(__iter__)
+        1    0.000    0.000    0.000    0.000 csv.py:82(__init__)
+        2    0.000    0.000    0.000    0.000 test_dump.py:14(get_memory)
+        2    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:26(__exit__)
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+        1    0.000    0.000    3.708    3.708 node.py:254(calc_max_length)
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:20(__enter__)
+        2    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
         1    0.000    0.000    0.000    0.000 {built-in method _csv.reader}
         1    0.000    0.000    0.000    0.000 codecs.py:308(__init__)
-        1    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
-        1    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {method '__subclasshook__' of 'object' objects}
         1    0.000    0.000    0.000    0.000 codecs.py:259(__init__)
-        1    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
-        1    0.000    0.000    0.000    0.000 csv.py:91(__iter__)
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:16(__init__)
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:52(_commit_removals)
+        1    0.000    0.000    0.000    0.000 _weakrefset.py:81(add)
+        1    0.000    0.000    0.000    0.000 {method 'remove' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 {method '__subclasses__' of 'type' objects}
         1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 csv.py:91(__iter__)
 
 
-Pickling

@@ -8,10 +8,15 @@ from pickle import HIGHEST_PROTOCOL  # nosec
 class Database:  # pylint: disable=too-few-public-methods
     """Key-value database."""
 
-    def __init__(self, readonly: bool = True) -> None:
+    EMPTY_WRITE = 'n'
+    READ = 'r'
+
+    dictionary: shelve.DbfilenameShelf = None
+
+    @classmethod
+    def init(cls, mode: str = 'r') -> None:
         """Create folder if needed."""
-        flag = 'r' if readonly else 'n'
-        # Ignore: error: Expression type contains "Any" (has type "Type[Path]")
+        # error: Expression type contains "Any" (has type "Type[Path]")
         # How to solve it?
         folder = Path.home() / '.browscapy'  # type: ignore
         filename = folder / 'cache'
@@ -20,8 +25,9 @@ class Database:  # pylint: disable=too-few-public-methods
         if not folder.exists():  # pylint: disable=no-member
             folder.mkdir()       # pylint: disable=no-member
 
-        self.shelve = shelve.open(str(filename), flag, HIGHEST_PROTOCOL)
+        cls.dictionary = shelve.open(str(filename), mode, HIGHEST_PROTOCOL)
 
-    def close(self) -> None:
+    @classmethod
+    def close(cls) -> None:
         """Close the shelve, persisting the data."""
-        self.shelve.close()
+        cls.dictionary.close()

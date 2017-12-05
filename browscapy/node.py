@@ -14,9 +14,9 @@ The properties above allow a fast search by descending the only sibling
 having a substring of the new node's patterns.
 """
 from abc import ABC, abstractmethod
-from shelve import DbfilenameShelf
 from typing import List, Union, cast
 
+from .database import Database
 from .properties import Properties
 
 # pylint: disable=invalid-name
@@ -84,6 +84,13 @@ class Parent(ABC):
                 SearchResult.parent.find_parent(node)
                 break
 
+    def sort_children(self) -> None:
+        """Sort children by :attr:`Node.max_length`, desc."""
+        for child in self.children:
+            if child.children:
+                child.sort_children()
+        self.children.sort(key=lambda x: x.max_length, reverse=True)
+
 
 class Node(Parent):
     """A Node contains a pattern and others nodes as children."""
@@ -92,6 +99,7 @@ class Node(Parent):
         """Assign pattern and optional children."""
         super().__init__(children)
         self.pattern = pattern
+        self.max_length: int = 0
 
     @abstractmethod
     def add_child(self, child: 'FullPattern', parent: Parent) -> None:
@@ -113,6 +121,19 @@ class Node(Parent):
             length += 1
         return length
 
+    def calc_max_length(self) -> int:
+        """Calculate the largest pattern that is reachable from this node."""
+        if self.children:
+            self.max_length = max(child.calc_max_length()
+                                  for child in self.children)
+        else:
+            self.max_length = self.get_pattern_length()
+        return self.max_length
+
+    def get_pattern_length(self) -> int:
+        """Count characters excluding "*" and "?"."""
+        return sum(1 for char in self.pattern if char not in ('*', '?'))
+
 
 class FullPattern(Node):
     """Browscap pattern and properties.
@@ -124,8 +145,6 @@ class FullPattern(Node):
 
     """
 
-    DATABASE: DbfilenameShelf
-
     def __init__(self, properties: Properties) -> None:
         """Build a node from a browscap pattern string."""
         super().__init__(properties.PropertyName)
@@ -134,12 +153,12 @@ class FullPattern(Node):
     @property
     def properties(self) -> Properties:
         """Return properties from database."""
-        return cast(Properties, self.DATABASE[self.pattern])
+        return cast(Properties, Database.dictionary[self.pattern])
 
     @properties.setter
     def properties(self, value: Properties) -> None:
         """Store properties in database."""
-        self.DATABASE[self.pattern] = value
+        Database.dictionary[self.pattern] = value
 
     def add_child(self, child: 'FullPattern', parent: Parent) -> None:
         """Add the child. May create a new PartialPattern node.
@@ -222,3 +241,13 @@ class Tree(Parent):
     def add_child(self, child: Node, parent: Parent) -> None:
         """Append child to children list."""
         self.children.append(child)
+
+    def optimize(self) -> None:
+        """Sort children by the highest length."""
+        self._calc_max_length()
+        self.sort_children()
+
+    def _calc_max_length(self) -> None:
+        """Find largest pattern that is reachable from this node."""
+        for child in self.children:
+            child.calc_max_length()
