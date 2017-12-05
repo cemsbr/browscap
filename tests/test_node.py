@@ -91,11 +91,10 @@ class TestNode(TestCase):
 
     @classmethod
     def _get_full_pattern(cls, pattern: str) -> FullPattern:
-        properties = cls._get_properties(pattern)
-        return FullPattern(properties)
+        properties = cls._get_properties()
+        return FullPattern(pattern, properties)
 
     @staticmethod
-    def _get_properties(pattern: str) -> Properties:
+    def _get_properties() -> Properties:
         prop_values: List[str] = [None] * len(Properties._fields)
-        prop_values[0] = pattern
         return Properties(*prop_values)

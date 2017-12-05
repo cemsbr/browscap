@@ -145,9 +145,9 @@ class FullPattern(Node):
 
     """
 
-    def __init__(self, properties: Properties) -> None:
+    def __init__(self, pattern: str, properties: Properties) -> None:
         """Build a node from a browscap pattern string."""
-        super().__init__(properties.PropertyName)
+        super().__init__(pattern)
         self.properties = properties
 
     @property

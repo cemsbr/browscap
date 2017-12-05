@@ -24,8 +24,10 @@ def build_tree() -> None:
         print('Memory before:', get_memory(), 'bytes')
         print('Parsing and saving properties...', file=stderr)
         for row in csv_reader:
+            pattern = row[0]
+            row[0] = None
             properties = Properties(*row)
-            node = FullPattern(properties)
+            node = FullPattern(pattern, properties)
             TREE.add_node(node)
         print('Optimizing tree...', file=stderr)
         TREE.optimize()
