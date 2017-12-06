@@ -93,7 +93,8 @@ setup(
             'rstcheck',
             'safety',
             'tox',
-            'yala'
+            # yala 1.3.3 fixes a bug on reading user config files
+            'yala>=1.3.3'
         ],
     },
 

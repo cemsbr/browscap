@@ -14,15 +14,16 @@ The properties above allow a fast search by descending the only sibling
 having a substring of the new node's patterns.
 """
 from abc import ABC, abstractmethod
-from typing import List, Union, cast
+from typing import TYPE_CHECKING, List, Union
 
 from .database import Database
 from .properties import Properties
 
-# pylint: disable=invalid-name
-# Due to list invariance.
-NodeList = List[Union['Node', 'PartialPattern', 'FullPattern']]
-# pylint: enable=invalid-name
+if TYPE_CHECKING:
+    # Due to list invariance.
+    # Pylint, this is not a constant, but a type.
+    # pylint: disable=invalid-name
+    NodeList = List[Union['Node', 'PartialPattern', 'FullPattern']]
 
 
 class SearchResult:
@@ -57,7 +58,7 @@ class SearchResult:
 class Parent(ABC):
     """Have a Node list as children."""
 
-    def __init__(self, children: NodeList = None) -> None:
+    def __init__(self, children: 'NodeList' = None) -> None:
         """Initialize children."""
         self.children = children or []
 
@@ -95,7 +96,7 @@ class Parent(ABC):
 class Node(Parent):
     """A Node contains a pattern and others nodes as children."""
 
-    def __init__(self, pattern: str, children: NodeList = None) -> None:
+    def __init__(self, pattern: str, children: 'NodeList' = None) -> None:
         """Assign pattern and optional children."""
         super().__init__(children)
         self.pattern = pattern
@@ -153,12 +154,12 @@ class FullPattern(Node):
     @property
     def properties(self) -> Properties:
         """Return properties from database."""
-        return cast(Properties, Database.dictionary[self.pattern])
+        return Database.get_properties(self.pattern)
 
     @properties.setter
     def properties(self, value: Properties) -> None:
         """Store properties in database."""
-        Database.dictionary[self.pattern] = value
+        Database.add_properties(self.pattern, value)
 
     def add_child(self, child: 'FullPattern', parent: Parent) -> None:
         """Add the child. May create a new PartialPattern node.
@@ -181,7 +182,7 @@ class FullPattern(Node):
             -> None:
         """Create partial pattern as a parent node with the common chars."""
         common_prefix = child.pattern[:SearchResult.score]
-        children: NodeList = [self, child]
+        children: 'NodeList' = [self, child]
         partial_pattern = PartialPattern(common_prefix, children)
         # Replace self by the new PartialPattern
         parent.children.remove(self)

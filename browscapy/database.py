@@ -3,13 +3,20 @@ import shelve
 from pathlib import Path
 # Skip bandit low-severity issue
 from pickle import HIGHEST_PROTOCOL  # nosec
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    # pylint: disable=unused-import
+    from .properties import Properties  # noqa
+    from .search import IndexNode  # noqa
 
 
-class Database:  # pylint: disable=too-few-public-methods
+class Database:
     """Key-value database."""
 
     EMPTY_WRITE = 'n'
     READ = 'r'
+    _INDEX_PREFIX = '__index__'
 
     dictionary: shelve.DbfilenameShelf = None
 
@@ -26,6 +33,28 @@ class Database:  # pylint: disable=too-few-public-methods
             folder.mkdir()       # pylint: disable=no-member
 
         cls.dictionary = shelve.open(str(filename), mode, HIGHEST_PROTOCOL)
+
+    @classmethod
+    def add_properties(cls, pattern: str, properties: 'Properties') -> None:
+        """Add browscap properties to database."""
+        cls.dictionary[pattern] = properties
+
+    @classmethod
+    def get_properties(cls, pattern: str) -> 'Properties':
+        """Add browscap properties to database."""
+        return cast('Properties', cls.dictionary[pattern])
+
+    @classmethod
+    def add_index_node(cls, pattern: str, index_node: 'IndexNode') -> None:
+        """Add index node to database."""
+        key = cls._INDEX_PREFIX + pattern
+        cls.dictionary[key] = index_node
+
+    @classmethod
+    def get_index_node(cls, pattern: str) -> 'IndexNode':
+        """Return an index node from database."""
+        key = cls._INDEX_PREFIX + pattern
+        return cast('IndexNode', cls.dictionary[key])
 
     @classmethod
     def close(cls) -> None:

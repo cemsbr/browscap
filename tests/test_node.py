@@ -1,11 +1,15 @@
 """Test Node class."""
-from typing import List, Sequence
+from typing import TYPE_CHECKING, List, Sequence
 from unittest import TestCase
 from unittest.mock import MagicMock
 
 from browscapy.database import Database
-from browscapy.node import FullPattern, Parent, PartialPattern, Tree
+from browscapy.node import FullPattern, PartialPattern, Tree
 from browscapy.properties import Properties
+
+if TYPE_CHECKING:
+    # pylint: disable=unused-import
+    from browscapy.node import Parent  # noqa
 
 
 class TestNode(TestCase):
@@ -75,7 +79,7 @@ class TestNode(TestCase):
     def _test_addition(self, patterns: Sequence[str],
                        *level_patterns: Sequence[str]) -> None:
         """Add patterns and compare resulting patterns of each level."""
-        node: Parent = self._add_patterns(*patterns)
+        node: 'Parent' = self._add_patterns(*patterns)
         for expected in level_patterns:
             actual = [child.pattern for child in node.children]
             self.assertSequenceEqual(expected, actual)

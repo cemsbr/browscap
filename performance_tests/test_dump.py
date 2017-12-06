@@ -6,7 +6,7 @@ from sys import stderr
 
 from browscapy.node import FullPattern, Properties, Tree
 from browscapy.database import Database
-from browscapy.search import SearchNode
+from browscapy.search import IndexNode
 
 TREE = Tree()
 
@@ -33,7 +33,7 @@ def build_tree() -> None:
         print('Optimizing tree...', file=stderr)
         TREE.optimize()
         print('Storing index...', file=stderr)
-        SearchNode.store_parsed_tree(TREE)
+        IndexNode.store_parsed_tree(TREE)
         print('Memory after:', get_memory(), 'bytes')
 
 
