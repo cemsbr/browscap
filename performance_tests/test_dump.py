@@ -6,7 +6,7 @@ from sys import stderr
 
 from browscapy.node import FullPattern, Properties, Tree
 from browscapy.database import Database
-from browscapy.search import SearchTree
+from browscapy.search import SearchNode
 
 TREE = Tree()
 
@@ -20,7 +20,8 @@ def build_tree() -> None:
     """Build the whole tree."""
     with open('../browscap.csv') as browscap:
         csv_reader = csv.reader(browscap)
-        next(csv_reader)  # skip header
+        for _ in range(3):
+            next(csv_reader)  # skip headers
         print('Memory before:', get_memory(), 'bytes')
         print('Parsing and saving properties...', file=stderr)
         for row in csv_reader:
@@ -32,7 +33,7 @@ def build_tree() -> None:
         print('Optimizing tree...', file=stderr)
         TREE.optimize()
         print('Storing index...', file=stderr)
-        SearchTree.store_parsed_tree(TREE)
+        SearchNode.store_parsed_tree(TREE)
         print('Memory after:', get_memory(), 'bytes')
 
 
