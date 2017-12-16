@@ -56,6 +56,13 @@ class TestMatcher(TestCase):
         pattern = 'mozilla/5.0 (*linux*x86_64*) gecko* firefox/57.0*'
         self._test_match(pattern, user_agent, True, True)
 
+    def test_real_example2(self) -> None:
+        """Tested on browscap website on 2017-11-19."""
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0;' \
+            ' rv:11.0) like Gecko'
+        pattern = 'Mozilla/5.0 (*Windows NT 10.0*WOW64*Trident/7.0*rv:11.0*'
+        self._test_match(pattern, user_agent, True, True)
+
     def test_case_insensitiveness(self) -> None:
         """Should not consider case in patterns."""
         self._test_match('a', 'A', True, True)

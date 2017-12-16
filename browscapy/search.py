@@ -98,7 +98,7 @@ class Browscapy:
     def _search_children(self, node: IndexNode, pattern: str, length: int) \
             -> None:
         for child in node.children_info:
-            if child.max_length <= length:
+            if child.max_length < length:  # last node can be '*' -> <
                 break  # They are sorted by max_length desc
             child_pattern = partial_pattern = pattern + child.pattern
             if partial_pattern[-1] != '*':
@@ -110,7 +110,7 @@ class Browscapy:
     def _search_child(self, pattern: str, length: int) -> None:
         node = Database.get_index_node(pattern)
         if node.is_full_pattern:
-            # If ends with *, there was a match in _search_children
+            # If it ends with *, there was a match in _search_children
             if pattern[-1] == '*' or \
                     match(pattern, self._user_agent, self._ignore_case):
                 self._result.update(pattern, length)
