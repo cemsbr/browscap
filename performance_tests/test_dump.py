@@ -18,7 +18,7 @@ def get_memory() -> int:
 
 def build_tree() -> None:
     """Build the whole tree."""
-    with open('../browscap.csv') as browscap:
+    with open('browscap.csv') as browscap:
         csv_reader = csv.reader(browscap)
         for _ in range(3):
             next(csv_reader)  # skip headers
