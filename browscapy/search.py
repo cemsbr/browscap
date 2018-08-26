@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Type
 
 from .database import Database
 from .matcher import match
-from .node import IndexNode
+from .database import IndexNode
 
 if TYPE_CHECKING:
     # pylint: disable=unused-import
@@ -29,14 +29,14 @@ class SearchResult:  # pylint: disable=too-few-public-methods
 class Browscapy:
     """High-level end-user class."""
 
-    def __init__(self, database: Database) -> None:
+    def __init__(self, database: Optional[Database]) -> None:
         """Initialize cache."""
         if database is None:
             database = Database()
         self._database = database
-        self._user_agent: str = None
+        self._user_agent: str
         self._root: IndexNode = database.get_index_node('root')
-        self._result: SearchResult = None
+        self._result: SearchResult
         self._ignore_case: bool = False
 
     def __enter__(self) -> 'Browscapy':

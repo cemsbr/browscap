@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file requirements/dev.txt requirements/dev.in
 #
--e file:///active/repos/browscapy
+-e .
 astroid==2.0.4            # via pylint
 bandit==1.5.0
 certifi==2018.8.24        # via requests

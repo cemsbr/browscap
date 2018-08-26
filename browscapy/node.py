@@ -14,15 +14,15 @@ The properties above allow a fast search by descending the only sibling
 having a substring of the new node's patterns.
 """
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, NamedTuple, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Union, cast
 
-from .database import Database
 from .properties import Properties
 
 if TYPE_CHECKING:
     # Due to list invariance.
     # Pylint, this is not a constant, but a type.
     # pylint: disable=invalid-name
+    from .database import Database  # pylint: disable=unused-import
     NodeList = List[Union['Node', 'PartialPattern', 'FullPattern']]
 
 
@@ -36,12 +36,12 @@ class SearchResult:
     #: int: Number of characters in common since the pattern beginning.
     score: int
     #: Parent: The proper parent for a new node.
-    parent: 'Parent'
+    parent: Union['Node', 'Tree']
     #: Parent: The grandparent of the new node.
-    grandparent: 'Parent'
+    grandparent: Optional['Parent']
 
     @classmethod
-    def reset(cls, parent: 'Parent') -> None:
+    def reset(cls, parent: Union['Node', 'Tree']) -> None:
         """Prepare for a search."""
         cls.parent = parent
         cls.grandparent = None
@@ -58,18 +58,9 @@ class SearchResult:
 class Parent(ABC):
     """Have a Node list as children."""
 
-    def __init__(self, children: 'NodeList' = None) -> None:
+    def __init__(self, children: Optional['NodeList'] = None) -> None:
         """Initialize children."""
         self.children = children or []
-
-    @abstractmethod
-    def add_child(self, child: 'FullPattern', parent: 'Parent') -> None:
-        """Add a child as one of this node's children.
-
-        You should probably use :meth:`add_node` so the new node can be a
-        grandchild for example.
-        """
-        pass  # pragma: no cover
 
     def find_parent(self, node: 'Node') -> None:
         """Return the proper parent Node for a new node.
@@ -94,9 +85,13 @@ class Parent(ABC):
 
 
 class Node(Parent):
-    """A Node contains a pattern and others nodes as children."""
+    """A Node contains a pattern and others nodes as children.
 
-    def __init__(self, pattern: str, children: 'NodeList' = None) -> None:
+    In browscapy context, a node is either a full or partial pattern.
+    """
+
+    def __init__(self, pattern: str, children: Optional['NodeList'] = None) \
+            -> None:
         """Assign pattern and optional children."""
         super().__init__(children)
         self.pattern = pattern
@@ -146,20 +141,27 @@ class FullPattern(Node):
 
     """
 
+    _DB: 'Database'
+
     def __init__(self, pattern: str, properties: Properties) -> None:
         """Build a node from a browscap pattern string."""
         super().__init__(pattern)
         self.properties = properties
 
+    @classmethod
+    def set_database(cls, database: 'Database') -> None:
+        """Set database to handle browscap properties."""
+        cls._DB = database
+
     @property
     def properties(self) -> Properties:
         """Return properties from database."""
-        return Database.get_properties(self.pattern)
+        return self._DB.get_properties(self.pattern)
 
     @properties.setter
     def properties(self, value: Properties) -> None:
         """Store properties in database."""
-        Database.add_properties(self.pattern, value)
+        self._DB.add_properties(self.pattern, value)
 
     def add_child(self, child: 'FullPattern', parent: Parent) -> None:
         """Add the child. May create a new PartialPattern node.
@@ -237,9 +239,14 @@ class Tree(Parent):
         """Search for the proper parent and add node as its child."""
         SearchResult.reset(parent=self)
         self.find_parent(node)
-        SearchResult.parent.add_child(node, SearchResult.grandparent)
+        if SearchResult.parent == self:
+            self.add_child(node)
+        else:
+            parent = cast(Node, SearchResult.parent)
+            grandparent = cast(Parent, SearchResult.grandparent)
+            parent.add_child(node, grandparent)
 
-    def add_child(self, child: Node, parent: Parent) -> None:
+    def add_child(self, child: Node) -> None:
         """Append child to children list."""
         self.children.append(child)
 
@@ -252,48 +259,3 @@ class Tree(Parent):
         """Find largest pattern that is reachable from this node."""
         for child in self.children:
             child.calc_max_length()
-
-
-class IndexNodeInfo(NamedTuple):  # pylint: disable=too-few-public-methods
-    """Information on whether to search the child."""
-
-    max_length: int
-    pattern: str
-
-
-class IndexNode:  # pylint: disable=too-few-public-methods
-    """Node optimized for searching."""
-
-    def __init__(self) -> None:
-        """Initialize attributes as a non-full-pattern node."""
-        # Order: pattern length
-        self.children_info: Tuple[IndexNodeInfo, ...] = None
-        self.is_full_pattern = False
-
-    @classmethod
-    def store_parsed_tree(cls, tree: 'Tree', database: Database) -> None:
-        """Store the parsed tree in an optimized format."""
-        root = cls()
-        root.children_info = tuple(
-            IndexNodeInfo(node.max_length, node.pattern)
-            for node in tree.children)
-        database.add_index_node('root', root)
-
-        for child in tree.children:
-            cls._store_parsed_node(child, database)
-
-    @classmethod
-    def _store_parsed_node(cls, node: 'Node', database: Database) -> None:
-        """Store a parsed node in an optimized format, recursively."""
-        index_node = cls()
-        if isinstance(node, FullPattern):
-            index_node.is_full_pattern = True
-        if node.children:
-            start = len(node.pattern)
-            index_node.children_info = tuple(
-                IndexNodeInfo(child.max_length, child.pattern[start:])
-                for child in node.children)
-        database.add_index_node(node.pattern, index_node)
-
-        for child in node.children:
-            cls._store_parsed_node(child, database)

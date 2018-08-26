@@ -18,6 +18,7 @@ class TestNode(TestCase):
     def setUpClass(cls) -> None:
         """Mock the database."""
         Database.kv_store = {}
+        FullPattern.set_database(Database())
 
     def test_add_nodes(self) -> None:
         """Add 2 nodes with a common prefix."""
@@ -99,5 +100,5 @@ class TestNode(TestCase):
 
     @staticmethod
     def _get_properties() -> Properties:
-        prop_values: List[str] = [None] * len(Properties._fields)
+        prop_values: List[str] = [''] * len(Properties._fields)
         return Properties(*prop_values)

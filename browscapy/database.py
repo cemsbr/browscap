@@ -3,12 +3,14 @@ import shelve
 from pathlib import Path
 # Skip bandit low-severity issue
 from pickle import HIGHEST_PROTOCOL  # nosec
-from typing import Dict, TYPE_CHECKING, Union, cast
+from typing import Dict, NamedTuple, Tuple, TYPE_CHECKING, Union, cast
+
+from .node import FullPattern
 
 if TYPE_CHECKING:
     # pylint: disable=unused-import
     from .properties import Properties  # noqa
-    from .node import IndexNode  # noqa
+    from .node import Node, Tree  # noqa
 
 
 class Database:
@@ -19,7 +21,7 @@ class Database:
     _INDEX_PREFIX = '__index__'
 
     kv_store: Union[shelve.DbfilenameShelf,
-                    Dict[str, Union['IndexNode', 'Properties']]] = None
+                    Dict[str, Union['IndexNode', 'Properties']]]
 
     @classmethod
     def init_cache_file(cls, mode: str = 'r') -> None:
@@ -42,7 +44,7 @@ class Database:
 
     @classmethod
     def get_properties(cls, pattern: str) -> 'Properties':
-        """Add browscap properties to database."""
+        """Get browscap properties to database."""
         return cast('Properties', cls.kv_store[pattern])
 
     @classmethod
@@ -62,3 +64,48 @@ class Database:
         """Close the shelve, persisting the data."""
         if isinstance(cls.kv_store, shelve.DbfilenameShelf):
             cls.kv_store.close()
+
+
+class IndexNodeInfo(NamedTuple):  # pylint: disable=too-few-public-methods
+    """Information on whether to search the child."""
+
+    max_length: int
+    pattern: str
+
+
+class IndexNode:  # pylint: disable=too-few-public-methods
+    """Node optimized for searching."""
+
+    def __init__(self) -> None:
+        """Initialize attributes as a non-full-pattern node."""
+        # Order: pattern length
+        self.children_info: Tuple[IndexNodeInfo, ...] = tuple()
+        self.is_full_pattern = False
+
+    @classmethod
+    def store_parsed_tree(cls, tree: 'Tree', database: Database) -> None:
+        """Store the parsed tree in an optimized format."""
+        root = cls()
+        root.children_info = tuple(
+            IndexNodeInfo(node.max_length, node.pattern)
+            for node in tree.children)
+        database.add_index_node('root', root)
+
+        for child in tree.children:
+            cls._store_parsed_node(child, database)
+
+    @classmethod
+    def _store_parsed_node(cls, node: 'Node', database: Database) -> None:
+        """Store a parsed node in an optimized format, recursively."""
+        index_node = cls()
+        if isinstance(node, FullPattern):
+            index_node.is_full_pattern = True
+        if node.children:
+            start = len(node.pattern)
+            index_node.children_info = tuple(
+                IndexNodeInfo(child.max_length, child.pattern[start:])
+                for child in node.children)
+        database.add_index_node(node.pattern, index_node)
+
+        for child in node.children:
+            cls._store_parsed_node(child, database)

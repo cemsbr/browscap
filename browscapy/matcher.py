@@ -27,7 +27,7 @@ def match(pattern: str, string: str, ignore_case: bool = False) -> bool:
                 if next_pat_char == str_char:  # There's a match after *
                     # Compute a future match
                     pat_i += 2  # Next iter will match the 2nd char after *
-        elif pat_char != str_char and pat_char != '?':
+        elif pat_char not in [str_char, '?']:
             break
         # Always move both indexes
         pat_i += 1
