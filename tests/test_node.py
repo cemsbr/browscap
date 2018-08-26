@@ -1,7 +1,6 @@
 """Test Node class."""
 from typing import TYPE_CHECKING, List, Sequence
 from unittest import TestCase
-from unittest.mock import MagicMock
 
 from browscapy.database import Database
 from browscapy.node import FullPattern, PartialPattern, Tree

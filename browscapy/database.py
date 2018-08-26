@@ -8,7 +8,7 @@ from typing import Dict, TYPE_CHECKING, Union, cast
 if TYPE_CHECKING:
     # pylint: disable=unused-import
     from .properties import Properties  # noqa
-    from .search import IndexNode  # noqa
+    from .node import IndexNode  # noqa
 
 
 class Database:
@@ -19,7 +19,7 @@ class Database:
     _INDEX_PREFIX = '__index__'
 
     kv_store: Union[shelve.DbfilenameShelf,
-            Dict[str, Union['IndexNode', 'Properties']]] = None
+                    Dict[str, Union['IndexNode', 'Properties']]] = None
 
     @classmethod
     def init_cache_file(cls, mode: str = 'r') -> None:

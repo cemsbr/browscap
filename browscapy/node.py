@@ -14,7 +14,7 @@ The properties above allow a fast search by descending the only sibling
 having a substring of the new node's patterns.
 """
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING, List, NamedTuple, Tuple, Union
 
 from .database import Database
 from .properties import Properties
@@ -252,3 +252,48 @@ class Tree(Parent):
         """Find largest pattern that is reachable from this node."""
         for child in self.children:
             child.calc_max_length()
+
+
+class IndexNodeInfo(NamedTuple):  # pylint: disable=too-few-public-methods
+    """Information on whether to search the child."""
+
+    max_length: int
+    pattern: str
+
+
+class IndexNode:  # pylint: disable=too-few-public-methods
+    """Node optimized for searching."""
+
+    def __init__(self) -> None:
+        """Initialize attributes as a non-full-pattern node."""
+        # Order: pattern length
+        self.children_info: Tuple[IndexNodeInfo, ...] = None
+        self.is_full_pattern = False
+
+    @classmethod
+    def store_parsed_tree(cls, tree: 'Tree', database: Database) -> None:
+        """Store the parsed tree in an optimized format."""
+        root = cls()
+        root.children_info = tuple(
+            IndexNodeInfo(node.max_length, node.pattern)
+            for node in tree.children)
+        database.add_index_node('root', root)
+
+        for child in tree.children:
+            cls._store_parsed_node(child, database)
+
+    @classmethod
+    def _store_parsed_node(cls, node: 'Node', database: Database) -> None:
+        """Store a parsed node in an optimized format, recursively."""
+        index_node = cls()
+        if isinstance(node, FullPattern):
+            index_node.is_full_pattern = True
+        if node.children:
+            start = len(node.pattern)
+            index_node.children_info = tuple(
+                IndexNodeInfo(child.max_length, child.pattern[start:])
+                for child in node.children)
+        database.add_index_node(node.pattern, index_node)
+
+        for child in node.children:
+            cls._store_parsed_node(child, database)

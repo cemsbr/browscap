@@ -1,10 +1,9 @@
 """Test pattern search."""
 import unittest
-from unittest.mock import patch
 
-from browscapy.node import Tree
+from browscapy.node import FullPattern, IndexNode, Tree
 from browscapy.properties import Properties
-from browscapy.search import Browscapy, Database, IndexNode, FullPattern
+from browscapy.search import Browscapy, Database
 
 
 class TestSearch(unittest.TestCase):
