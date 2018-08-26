@@ -18,10 +18,10 @@ class Database:
     READ = 'r'
     _INDEX_PREFIX = '__index__'
 
-    dictionary: shelve.DbfilenameShelf = None
+    kv_store: shelve.DbfilenameShelf = None
 
     @classmethod
-    def init(cls, mode: str = 'r') -> None:
+    def init_cache_file(cls, mode: str = 'r') -> None:
         """Create folder if needed."""
         # error: Expression type contains "Any" (has type "Type[Path]")
         # How to solve it?
@@ -32,31 +32,31 @@ class Database:
         if not folder.exists():  # pylint: disable=no-member
             folder.mkdir()       # pylint: disable=no-member
 
-        cls.dictionary = shelve.open(str(filename), mode, HIGHEST_PROTOCOL)
+        cls.kv_store = shelve.open(str(filename), mode, HIGHEST_PROTOCOL)
 
     @classmethod
     def add_properties(cls, pattern: str, properties: 'Properties') -> None:
         """Add browscap properties to database."""
-        cls.dictionary[pattern] = properties
+        cls.kv_store[pattern] = properties
 
     @classmethod
     def get_properties(cls, pattern: str) -> 'Properties':
         """Add browscap properties to database."""
-        return cast('Properties', cls.dictionary[pattern])
+        return cast('Properties', cls.kv_store[pattern])
 
     @classmethod
     def add_index_node(cls, pattern: str, index_node: 'IndexNode') -> None:
         """Add index node to database."""
         key = cls._INDEX_PREFIX + pattern
-        cls.dictionary[key] = index_node
+        cls.kv_store[key] = index_node
 
     @classmethod
     def get_index_node(cls, pattern: str) -> 'IndexNode':
         """Return an index node from database."""
         key = cls._INDEX_PREFIX + pattern
-        return cast('IndexNode', cls.dictionary[key])
+        return cast('IndexNode', cls.kv_store[key])
 
     @classmethod
     def close(cls) -> None:
         """Close the shelve, persisting the data."""
-        cls.dictionary.close()
+        cls.kv_store.close()

@@ -1,5 +1,6 @@
 """Optimize read-only search."""
-from typing import TYPE_CHECKING, NamedTuple, Tuple
+from types import TracebackType
+from typing import TYPE_CHECKING, NamedTuple, Optional, Tuple, Type
 
 from .database import Database
 from .matcher import match
@@ -27,19 +28,19 @@ class IndexNode:  # pylint: disable=too-few-public-methods
         self.is_full_pattern = False
 
     @classmethod
-    def store_parsed_tree(cls, tree: 'Tree') -> None:
+    def store_parsed_tree(cls, tree: 'Tree', database: Database) -> None:
         """Store the parsed tree in an optimized format."""
         root = cls()
         root.children_info = tuple(
             IndexNodeInfo(node.max_length, node.pattern)
             for node in tree.children)
-        Database.add_index_node('root', root)
+        database.add_index_node('root', root)
 
         for child in tree.children:
-            cls._store_parsed_node(child)
+            cls._store_parsed_node(child, database)
 
     @classmethod
-    def _store_parsed_node(cls, node: 'Node') -> None:
+    def _store_parsed_node(cls, node: 'Node', database: Database) -> None:
         """Store a parsed node in an optimized format, recursively."""
         index_node = cls()
         if isinstance(node, FullPattern):
@@ -49,10 +50,10 @@ class IndexNode:  # pylint: disable=too-few-public-methods
             index_node.children_info = tuple(
                 IndexNodeInfo(child.max_length, child.pattern[start:])
                 for child in node.children)
-        Database.add_index_node(node.pattern, index_node)
+        database.add_index_node(node.pattern, index_node)
 
         for child in node.children:
-            cls._store_parsed_node(child)
+            cls._store_parsed_node(child, database)
 
 
 class SearchResult:  # pylint: disable=too-few-public-methods
@@ -73,13 +74,27 @@ class SearchResult:  # pylint: disable=too-few-public-methods
 class Browscapy:
     """High-level end-user class."""
 
-    def __init__(self):
+    def __init__(self, database: Database):
         """Initialize cache."""
+        if database is None:
+            database = Database
+        self._database = database
         self._user_agent: str = None
-        Database.init(Database.READ)
-        self._root: IndexNode = Database.get_index_node('root')
+        self._root: IndexNode = database.get_index_node('root')
         self._result: SearchResult = None
         self._ignore_case: bool = False
+
+    def __enter__(self) -> 'Browscapy':
+        """Context manager to automatically close the database."""
+        return self
+
+    def __exit__(self,
+                 exc_type: Optional[Type[BaseException]],
+                 exc_value: Optional[BaseException],
+                 traceback: Optional[TracebackType]) -> Optional[bool]:
+        """Close the database in a context manager."""
+        self.close()
+        return exc_type is None
 
     def search(self, user_agent: str) -> str:
         """Return browscap properties for a user_agent."""
@@ -108,7 +123,7 @@ class Browscapy:
                 self._search_child(child_pattern, child_length)
 
     def _search_child(self, pattern: str, length: int) -> None:
-        node = Database.get_index_node(pattern)
+        node = self._database.get_index_node(pattern)
         if node.is_full_pattern:
             # If it ends with *, there was a match in _search_children
             if pattern[-1] == '*' or \
@@ -121,7 +136,6 @@ class Browscapy:
     def _get_length(pattern: str) -> int:
         return sum(1 for char in pattern if char not in ('*', '?'))
 
-    @staticmethod
-    def close() -> None:
+    def close(self) -> None:
         """Close the database."""
-        Database.close()
+        self._database.close()

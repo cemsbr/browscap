@@ -39,7 +39,7 @@ def build_tree() -> None:
 
 def build_cache() -> None:
     """Create and dump the browscap tree."""
-    Database.init(Database.EMPTY_WRITE)
+    Database.init_cache_file(Database.EMPTY_WRITE)
     cProfile.run('build_tree()', sort=1)
     print('Writing shelve...', file=stderr)
     Database.close()

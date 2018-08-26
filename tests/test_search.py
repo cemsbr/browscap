@@ -14,7 +14,8 @@ class TestSearch(unittest.TestCase):
         """Pattern should match PHP result."""
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0;' + \
             ' rv:11.0) like Gecko'
-        searcher = Browscapy()
+        Database.init_cache_file()
+        searcher = Browscapy(Database())
         actual = searcher.search(user_agent)
         expected = 'Mozilla/5.0 (*Windows NT 10.0*WOW64*Trident/7.0*rv:11.0*'
         self.assertEqual(expected, actual)
@@ -22,8 +23,8 @@ class TestSearch(unittest.TestCase):
     def test_last_node_is_star(self) -> None:
         """If the next and last node is a star, it should match, too."""
         tree = Tree()
-        searcher = Browscapy()
-        Database.dictionary = {}
+        Database.kv_store = {}
+        database = Database()
 
         prop_values = [None] * len(Properties._fields)
         properties = Properties(*prop_values)
@@ -32,8 +33,8 @@ class TestSearch(unittest.TestCase):
             tree.add_node(node)
         tree.optimize()
 
-        IndexNode.store_parsed_tree(tree)
-        searcher._root = Database.get_index_node('root')
+        IndexNode.store_parsed_tree(tree, database)
+        searcher = Browscapy(database)
         actual = searcher.search('abce')
         expected = 'abc*'
         self.assertEqual(expected, actual)

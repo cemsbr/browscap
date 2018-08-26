@@ -18,7 +18,7 @@ class TestNode(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Mock the database."""
-        Database.dictionary = MagicMock()
+        Database.kv_store = {}
 
     def test_add_nodes(self) -> None:
         """Add 2 nodes with a common prefix."""
