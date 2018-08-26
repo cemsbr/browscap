@@ -74,10 +74,10 @@ class SearchResult:  # pylint: disable=too-few-public-methods
 class Browscapy:
     """High-level end-user class."""
 
-    def __init__(self, database: Database):
+    def __init__(self, database: Database) -> None:
         """Initialize cache."""
         if database is None:
-            database = Database
+            database = Database()
         self._database = database
         self._user_agent: str = None
         self._root: IndexNode = database.get_index_node('root')

@@ -3,7 +3,7 @@ import shelve
 from pathlib import Path
 # Skip bandit low-severity issue
 from pickle import HIGHEST_PROTOCOL  # nosec
-from typing import TYPE_CHECKING, cast
+from typing import Dict, TYPE_CHECKING, Union, cast
 
 if TYPE_CHECKING:
     # pylint: disable=unused-import
@@ -18,7 +18,8 @@ class Database:
     READ = 'r'
     _INDEX_PREFIX = '__index__'
 
-    kv_store: shelve.DbfilenameShelf = None
+    kv_store: Union[shelve.DbfilenameShelf,
+            Dict[str, Union['IndexNode', 'Properties']]] = None
 
     @classmethod
     def init_cache_file(cls, mode: str = 'r') -> None:
@@ -59,4 +60,5 @@ class Database:
     @classmethod
     def close(cls) -> None:
         """Close the shelve, persisting the data."""
-        cls.kv_store.close()
+        if isinstance(cls.kv_store, shelve.DbfilenameShelf):
+            cls.kv_store.close()
